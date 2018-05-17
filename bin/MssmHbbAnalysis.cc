@@ -17,6 +17,8 @@ using namespace std;
 using namespace analysis;
 using namespace analysis::tools;
 
+float GetBTag(const Jet & jet, const std::string & algo);
+
 // =============================================================================================   
 int main(int argc, char * argv[])
 {
@@ -26,41 +28,39 @@ int main(int argc, char * argv[])
    TH1::SetDefaultSumw2();  // proper treatment of errors when scaling histograms
    
    // Cuts
-   float btagmin[3] = { btagwp_, btagwp_, btagwp_};
+   float btagmin[3] = { jetsbtagmin_[0], jetsbtagmin_[1], jetsbtagmin_[2]};
    
    // Input files list
    Analysis analysis(inputlist_);
    
-   analysis.addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppi");
-   
+   // Jets
+   analysis.addTree<Jet> ("Jets",jetsCol_);
+
+
+   // Trigger path info
+   analysis.triggerResults(triggerCol_);
+   // Trigger objects
    for ( auto & obj : triggerObjects_ )
    {
-      analysis.addTree<TriggerObject> (obj,Form("MssmHbb/Events/slimmedPatTrigger/%s",obj.c_str()));
+      analysis.addTree<TriggerObject> (obj,Form("%s/%s",triggerObjDir_.c_str(),obj.c_str()));
    }
    
-   analysis.triggerResults("MssmHbb/Events/TriggerResults");
+
+   // JSON for data   
+   if( !isMC_ ) analysis.processJsonFile(json_);
    
-   if( !isMC_ )
-   {
-      int json_status = analysis.processJsonFile(json_);
-      if ( json_status < 0 ) 
-      {
-         std::cout << "Error from processing json. Please check your json file." << std::endl;
-         return -1;
-      }
-   }
+   // output file
+   TFile hout(outputRoot_.c_str(),"recreate");
    
    std::string sr_s = "SR";
    if ( ! signalregion_ ) sr_s = "CR";
    boost::algorithm::replace_last(outputRoot_, ".root", "_"+sr_s+".root"); 
    
-   TFile hout(outputRoot_.c_str(),"recreate");
-   
    std::map<std::string, TH1F*> h1;
    h1["n"]        = new TH1F("n" , "" , 30, 0, 30);
-   h1["n_csv"]    = new TH1F("n_csv" , "" , 30, 0, 30);
+   h1["n_btag"]    = new TH1F("n_btag" , "" , 30, 0, 30);
    h1["n_ptmin20"]= new TH1F("n_ptmin20" , "" , 30, 0, 30);
-   h1["n_ptmin20_csv"] = new TH1F("n_ptmin20_csv" , "" , 30, 0, 30);
+   h1["n_ptmin20_btag"] = new TH1F("n_ptmin20_btag" , "" , 30, 0, 30);
    for ( int i = 0 ; i < njetsmin_ ; ++i )
    {
       h1[Form("pt_%i",i)]         = new TH1F(Form("pt_%i",i) , "" , 100, 0, 1000);
@@ -68,13 +68,13 @@ int main(int argc, char * argv[])
       h1[Form("phi_%i",i)]        = new TH1F(Form("phi_%i",i) , "" , 100, -4, 4);
       h1[Form("btag_%i",i)]       = new TH1F(Form("btag_%i",i) , "" , 500, 0, 1);
       
-      h1[Form("pt_%i_csv",i)]     = new TH1F(Form("pt_%i_csv",i) , "" , 100, 0, 1000);
-      h1[Form("eta_%i_csv",i)]    = new TH1F(Form("eta_%i_csv",i) , "" , 100, -5, 5);
-      h1[Form("phi_%i_csv",i)]    = new TH1F(Form("phi_%i_csv",i) , "" , 100, -4, 4);
-      h1[Form("btag_%i_csv",i)]   = new TH1F(Form("btag_%i_csv",i) , "" , 500, 0, 1);
+      h1[Form("pt_%i_btag",i)]     = new TH1F(Form("pt_%i_btag",i) , "" , 100, 0, 1000);
+      h1[Form("eta_%i_btag",i)]    = new TH1F(Form("eta_%i_btag",i) , "" , 100, -5, 5);
+      h1[Form("phi_%i_btag",i)]    = new TH1F(Form("phi_%i_btag",i) , "" , 100, -4, 4);
+      h1[Form("btag_%i_btag",i)]   = new TH1F(Form("btag_%i_btag",i) , "" , 500, 0, 1);
    }
    h1["m12"]     = new TH1F("m12"     , "" , 50, 0, 1000);
-   h1["m12_csv"] = new TH1F("m12_csv" , "" , 50, 0, 1000);
+   h1["m12_btag"] = new TH1F("m12_btag" , "" , 50, 0, 1000);
    
    
    double mbb;
@@ -101,7 +101,7 @@ int main(int argc, char * argv[])
    for ( int i = 0 ; i < nevtmax_ ; ++i )
    {
       int njets = 0;
-      int njets_csv = 0;
+      int njets_btag = 0;
       bool goodEvent = true;
       
       if ( i > 0 && i%100000==0 ) std::cout << i << "  events processed! " << std::endl;
@@ -118,7 +118,7 @@ int main(int argc, char * argv[])
       ++nsel[0];
       
       // match offline to online
-      analysis.match<Jet,TriggerObject>("Jets",triggerObjects_,0.5);
+      analysis.match<Jet,TriggerObject>("Jets",triggerObjects_,0.3);
       
       // Jets - std::shared_ptr< Collection<Jet> >
       auto slimmedJets = analysis.collection<Jet>("Jets");
@@ -146,6 +146,7 @@ int main(int argc, char * argv[])
       
       ++nsel[2];
       
+      // delta_R selection
       for ( int j1 = 0; j1 < njetsmin_-1; ++j1 )
       {
          const Jet & jet1 = *selectedJets[j1];
@@ -160,6 +161,7 @@ int main(int argc, char * argv[])
       
       ++nsel[3];
       
+      // delta_eta selection
       if ( fabs(selectedJets[0]->eta() - selectedJets[1]->eta()) > detamax_ ) continue;
       
       ++nsel[4];
@@ -180,16 +182,16 @@ int main(int argc, char * argv[])
          h1[Form("pt_%i",j)]   -> Fill(jet->pt());
          h1[Form("eta_%i",j)]  -> Fill(jet->eta());
          h1[Form("phi_%i",j)]  -> Fill(jet->phi());
-         h1[Form("btag_%i",j)] -> Fill(jet->btag());
+         h1[Form("btag_%i",j)] -> Fill(GetBTag(*jet,btagalgo_));
          
-         if ( j < 2 && jet->btag() < btagmin[j] )     goodEvent = false;
+         if ( j < 2 && GetBTag(*jet,btagalgo_) < btagmin[j] )     goodEvent = false;
          if ( ! signalregion_ )
          {
-            if ( j == 2 && jet->btag() > nonbtagwp_ )    goodEvent = false; 
+            if ( j == 2 && GetBTag(*jet,btagalgo_) > nonbtagwp_ )    goodEvent = false; 
          }
          else
          {
-            if ( j == 2 && jet->btag() < btagmin[j] ) goodEvent = false; 
+            if ( j == 2 && GetBTag(*jet,btagalgo_) < btagmin[j] ) goodEvent = false; 
          }
       }
       
@@ -228,22 +230,22 @@ int main(int argc, char * argv[])
       for ( int j = 0 ; j < (int)selectedJets.size() ; ++j )
       {
          if ( selectedJets[j]->pt() < 20. ) continue;
-         ++njets_csv;
+         ++njets_btag;
       }
-      h1["n_csv"] -> Fill(selectedJets.size());
-      h1["n_ptmin20_csv"] -> Fill(njets_csv);
+      h1["n_btag"] -> Fill(selectedJets.size());
+      h1["n_ptmin20_btag"] -> Fill(njets_btag);
       for ( int j = 0; j < njetsmin_; ++j )
       {
          Jet * jet = selectedJets[j];
-         h1[Form("pt_%i_csv",j)]   -> Fill(jet->pt());
-         h1[Form("eta_%i_csv",j)]  -> Fill(jet->eta());
-         h1[Form("phi_%i_csv",j)]  -> Fill(jet->phi());
-         h1[Form("btag_%i_csv",j)] -> Fill(jet->btag());
+         h1[Form("pt_%i_btag",j)]   -> Fill(jet->pt());
+         h1[Form("eta_%i_btag",j)]  -> Fill(jet->eta());
+         h1[Form("phi_%i_btag",j)]  -> Fill(jet->phi());
+         h1[Form("btag_%i_btag",j)] -> Fill(GetBTag(*jet,btagalgo_));
       }
       mbb = (selectedJets[0]->p4() + selectedJets[1]->p4()).M();
       if ( !signalregion_ )
       { 
-         h1["m12_csv"] -> Fill(mbb);
+         h1["m12_btag"] -> Fill(mbb);
          weight = 1;
          tree -> Fill();
       }
@@ -311,3 +313,24 @@ int main(int argc, char * argv[])
    
 } //end main
 
+float GetBTag(const Jet & jet, const std::string & algo)
+{
+   float btag;
+   if ( btagalgo_ == "csvivf" || btagalgo_ == "csv" )
+   {
+      btag = jet.btag("btag_csvivf");
+   }
+   else if ( btagalgo_ == "deepcsv" )
+   {
+      btag = jet.btag("btag_deepb") + jet.btag("btag_deepbb");
+   }
+   else if ( btagalgo_ == "deepbvsall" )
+   {
+      btag = jet.btag("btag_deepbvsall");
+   }
+   else
+   {
+      btag = -9999;
+   }
+   return btag;
+}
