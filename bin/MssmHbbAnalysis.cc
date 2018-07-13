@@ -57,6 +57,9 @@ int main(int argc, char * argv[])
    boost::algorithm::replace_last(outputRoot_, ".root", "_"+sr_s+".root"); 
    
    std::map<std::string, TH1F*> h1;
+   std::map<std::string, TH2F*> h2;
+   
+   
    h1["n"]        = new TH1F("n" , "" , 30, 0, 30);
    h1["n_btag"]    = new TH1F("n_btag" , "" , 30, 0, 30);
    h1["n_ptmin20"]= new TH1F("n_ptmin20" , "" , 30, 0, 30);
@@ -72,9 +75,17 @@ int main(int argc, char * argv[])
       h1[Form("eta_%i_btag",i)]    = new TH1F(Form("eta_%i_btag",i) , "" , 100, -5, 5);
       h1[Form("phi_%i_btag",i)]    = new TH1F(Form("phi_%i_btag",i) , "" , 100, -4, 4);
       h1[Form("btag_%i_btag",i)]   = new TH1F(Form("btag_%i_btag",i) , "" , 500, 0, 1);
+      
+      // btag in  pt bins
+      for ( int j = 0 ; j < 4 ; ++j )
+      {
+         h1[Form("btag_%d_%d_btag",i,j)]   = new TH1F(Form("btag_%d_%d_btag",i,j) , "" , 500, 0, 1);
+      }
+      
+      h2[Form("eta_phi_%d_btag",i)] = new TH2F(Form("eta_phi_%d_btag",i), "", 88, -2.2,2.2,126,-3.15,3.15);
    }
-   h1["m12"]     = new TH1F("m12"     , "" , 50, 0, 1000);
-   h1["m12_btag"] = new TH1F("m12_btag" , "" , 50, 0, 1000);
+   h1["m12"]     = new TH1F("m12"     , "" , 50, 0, 2000);
+   h1["m12_btag"] = new TH1F("m12_btag" , "" , 50, 0, 2000);
    
    
    double mbb;
@@ -241,6 +252,14 @@ int main(int argc, char * argv[])
          h1[Form("eta_%i_btag",j)]  -> Fill(jet->eta());
          h1[Form("phi_%i_btag",j)]  -> Fill(jet->phi());
          h1[Form("btag_%i_btag",j)] -> Fill(GetBTag(*jet,btagalgo_));
+         
+         h2[Form("eta_phi_%d_btag",j)] -> Fill(jet->eta(),jet->phi());
+         
+         if ( jet->pt() >= 100 && jet->pt() < 140 )   h1[Form("btag_%d_%d_btag",j,0)] -> Fill(GetBTag(*jet,btagalgo_));
+         if ( jet->pt() >= 140 && jet->pt() < 200 )   h1[Form("btag_%d_%d_btag",j,1)] -> Fill(GetBTag(*jet,btagalgo_));
+         if ( jet->pt() >= 200 && jet->pt() < 350 )   h1[Form("btag_%d_%d_btag",j,2)] -> Fill(GetBTag(*jet,btagalgo_));
+         if ( jet->pt() >= 350                    )   h1[Form("btag_%d_%d_btag",j,3)] -> Fill(GetBTag(*jet,btagalgo_));
+         
       }
       mbb = (selectedJets[0]->p4() + selectedJets[1]->p4()).M();
       if ( !signalregion_ )
@@ -255,6 +274,10 @@ int main(int argc, char * argv[])
    for (auto & ih1 : h1)
    {
       ih1.second -> Write();
+   }
+   for (auto & ih2 : h2)
+   {
+      ih2.second -> Write();
    }
    
    hout.Write();
