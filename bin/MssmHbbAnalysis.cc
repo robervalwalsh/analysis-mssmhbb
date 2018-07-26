@@ -136,7 +136,9 @@ int main(int argc, char * argv[])
       std::vector<Jet *> selectedJets;
       for ( int j = 0 ; j < slimmedJets->size() ; ++j )
       {
-         if ( slimmedJets->at(j).idLoose() ) selectedJets.push_back(&slimmedJets->at(j));
+//         if ( jetsid_ == "LOOSE" && slimmedJets->at(j).idLoose() ) selectedJets.push_back(&slimmedJets->at(j));
+//         if ( jetsid_ == "TIGHT" && slimmedJets->at(j).idTight() ) selectedJets.push_back(&slimmedJets->at(j));
+         if ( slimmedJets->at(j).idTight() ) selectedJets.push_back(&slimmedJets->at(j));
       }
       if ( (int)selectedJets.size() < njetsmin_ ) continue;
       
