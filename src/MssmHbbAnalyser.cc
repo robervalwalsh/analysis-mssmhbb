@@ -33,9 +33,9 @@ MssmHbbAnalyser::MssmHbbAnalyser()
 {
 }
 
-MssmHbbAnalyser::MssmHbbAnalyser(int argc, char * argv[]) : Analyser(argc,argv)
+MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : Analyser(argc,argv)
 {
-   histograms("jet",njetsmin_);
+   histograms("jet",config_->njetsmin_);
    
 }
 

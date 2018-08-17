@@ -36,9 +36,10 @@ namespace analysis {
    namespace mssmhbb {
 
       class MssmHbbAnalyser : public analysis::tools::Analyser {
+         
          public:
             MssmHbbAnalyser();
-            MssmHbbAnalyser(int argc, char * argv[]);
+            MssmHbbAnalyser(int argc, char ** argv);
            ~MssmHbbAnalyser();
            
             virtual bool event(const int &);
@@ -48,6 +49,9 @@ namespace analysis {
          protected:
                
          private:
+               
+               
+         public:
 
       };
    }
