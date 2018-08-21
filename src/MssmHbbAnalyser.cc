@@ -56,16 +56,77 @@ bool MssmHbbAnalyser::event(const int & i)
 {
    if ( ! Analyser::event(i) ) return false;
    
+   int n = config_->njetsmin_;
+   
+   for ( int j = 0; j < n; ++j )
+   {
+      h1_[Form("pt_jet%d",j+1)] -> Fill(selectedJets_[j]->pt());
+      h1_[Form("eta_jet%d",j+1)] -> Fill(selectedJets_[j]->eta());
+      h1_[Form("btag_jet%d",j+1)] -> Fill(btag(*selectedJets_[j],config_->btagalgo_));
+      for ( int k = j+1; k < n && j < n; ++k )
+      {
+         float deltaR = selectedJets_[j]->deltaR(*selectedJets_[k]);
+         h1_[Form("dr_jet%d%d",j+1,k+1)]    -> Fill(deltaR);
+         float deltaEta = fabs(selectedJets_[j]->eta() - selectedJets_[k]->eta());
+         h1_[Form("deta_jet%d%d",j+1,k+1)]  -> Fill(deltaEta);
+         float m = (selectedJets_[j]->p4()+selectedJets_[k]->p4()).M();
+         if ( !config_->signalregion_ )
+         {
+            h1_[Form("m_jet%d%d",j+1,k+1)]  -> Fill(m);
+         }
+      }
+   }
+   
    return true;
+}
+
+
+bool MssmHbbAnalyser::bjetSelection()
+{
+   bool isgood = true;
+   
+   if ( config_->nbjetsmin_ < 3 )
+   {
+      std::cout << "*** warning ***" << std::endl;
+      std::cout << "   This analysis require at least 3 b-tagged jets." << std::endl;
+      std::cout << "   Event *not* selected!" << std::endl;
+      return false;
+   }
+   
+   if ( selectedJets_.size() == 0 ) isgood = (isgood && jetSelection());
+   
+   if ( !isgood || (int)selectedJets_.size() < config_->nbjetsmin_ ) return false;
+   
+   // jet kinematics and btag
+   std::map<std::string,bool> isOk;
+   for ( int j = 0; j < config_->nbjetsmin_ ; ++j )
+   {
+      isOk[Form("btag%d",j)]  = true; 
+   }
+
+   // kinematic and btag selection
+   for ( int j = 0 ; j < config_->nbjetsmin_ ; ++j )
+   {
+      if ( ! config_->signalregion_ && j == (config_->nonbtagjet_-1) )
+      {
+         if ( btag(*selectedJets_[j],config_->btagalgo_) > config_->nonbtagwp_ ) isOk[Form("btag%d",j)]     = false;
+         continue;
+      }
+      if ( btag(*selectedJets_[j],config_->btagalgo_) < config_->jetsbtagmin_[j]   && !(config_->jetsbtagmin_[j] < 0) ) isOk[Form("btag%d",j)]     = false;
+   }
+   
+   for ( auto & ok : isOk )
+      isgood = ( isgood && ok.second );
+   
+   if ( ! isgood ) return false;
+
+   
+   return isgood;
 }
 
 
 void MssmHbbAnalyser::histograms(const std::string & obj, const int & n)
 {
    Analyser::histograms(obj,n);
-   if ( obj == "jet" )
-   {
-   }
-   
    
 }

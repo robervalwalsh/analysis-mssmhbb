@@ -44,7 +44,7 @@ namespace analysis {
            
             virtual bool event(const int &);
             virtual void histograms(const std::string &, const int &);
-         
+            virtual bool bjetSelection();        
             // ----------member data ---------------------------
          protected:
                
