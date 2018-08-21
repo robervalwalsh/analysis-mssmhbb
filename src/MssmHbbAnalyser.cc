@@ -80,8 +80,40 @@ bool MssmHbbAnalyser::event(const int & i)
    return true;
 }
 
+bool MssmHbbAnalyser::selectionJet()
+{
+   if ( ! Analyser::selectionJet() ) return false;
+   
+   bool isgood = true;
+   
+   // jet kinematics and btag
+   std::map<std::string,bool> isOk;
+   for ( int j = 0; j < config_->njetsmin_ ; ++j )
+   {
+      for ( int k = j+1; k < config_->njetsmin_ && j < config_->njetsmin_; ++k )
+      {
+         isOk[Form("dr%d%d",j,k)]   = true;
+         isOk[Form("deta%d%d",j,k)] = true;
+      }
+   }
+   // kinematic selection
+   for ( int j = 0 ; j < config_->njetsmin_ ; ++j )
+   {
+      // delta R between jets
+      for ( int k = j+1; k < config_->njetsmin_ && j < config_->njetsmin_; ++k )
+         if ( selectedJets_[j]->deltaR(*selectedJets_[k]) < config_->drmin_ )                                            isOk[Form("dr%d%d",j,k)]   = false;
+   }
+   // delta eta 2 leading jets
+   if ( config_->njetsmin_ > 1 )
+      if ( fabs(selectedJets_[0]->eta() - selectedJets_[1]->eta()) > config_->detamax_ && !(config_->detamax_ < 0) )     isOk[Form("deta%d%d",0,1)] = false;
+   
+   for ( auto & ok : isOk )
+      isgood = ( isgood && ok.second );
+   
+   return isgood;
+}
 
-bool MssmHbbAnalyser::bjetSelection()
+bool MssmHbbAnalyser::selectionBJet()
 {
    bool isgood = true;
    
@@ -93,7 +125,7 @@ bool MssmHbbAnalyser::bjetSelection()
       return false;
    }
    
-   if ( selectedJets_.size() == 0 ) isgood = (isgood && jetSelection());
+   if ( selectedJets_.size() == 0 ) isgood = (isgood && selectionJet());
    
    if ( !isgood || (int)selectedJets_.size() < config_->nbjetsmin_ ) return false;
    
