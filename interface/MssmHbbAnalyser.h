@@ -45,11 +45,13 @@ namespace analysis {
             virtual bool event(const int &);
             virtual void histograms(const std::string &, const int &);
             virtual bool selectionJet();        
-            virtual bool selectionBJet();        
+            virtual void end();        
             // ----------member data ---------------------------
          protected:
                
          private:
+               
+               std::vector<int> cutflow_;
                
                
          public:

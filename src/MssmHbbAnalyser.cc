@@ -36,6 +36,7 @@ MssmHbbAnalyser::MssmHbbAnalyser()
 MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : Analyser(argc,argv)
 {
    histograms("jet",config_->njetsmin_);
+   for ( int i = 0; i < 20; ++i ) cutflow_.push_back(0);
    
 }
 
@@ -56,34 +57,90 @@ bool MssmHbbAnalyser::event(const int & i)
 {
    if ( ! Analyser::event(i) ) return false;
    
-   int n = config_->njetsmin_;
-   
-   for ( int j = 0; j < n; ++j )
+   if ( ! selectionTrigger() ) return false;
+   h1_["cutflow"] -> Fill(0);
+   ++cutflow_[0];
+      
+   if ( analysisWithJets() )
    {
-      h1_[Form("pt_jet%d",j+1)] -> Fill(selectedJets_[j]->pt());
-      h1_[Form("eta_jet%d",j+1)] -> Fill(selectedJets_[j]->eta());
-      h1_[Form("btag_jet%d",j+1)] -> Fill(btag(*selectedJets_[j],config_->btagalgo_));
-      for ( int k = j+1; k < n && j < n; ++k )
+      if ( ! selectionJetId() ) return false;
+      h1_["cutflow"] -> Fill(1);
+      ++cutflow_[1];
+      
+      std::cout << "Event = " << i << " / " << analysis_->event() << " run =  " << analysis_->run() << " lumi section = " << analysis_->lumiSection() << std::endl;
+      for ( int j = 0; j < 3 ; ++j )
       {
-         float deltaR = selectedJets_[j]->deltaR(*selectedJets_[k]);
-         h1_[Form("dr_jet%d%d",j+1,k+1)]    -> Fill(deltaR);
-         float deltaEta = fabs(selectedJets_[j]->eta() - selectedJets_[k]->eta());
-         h1_[Form("deta_jet%d%d",j+1,k+1)]  -> Fill(deltaEta);
-         float m = (selectedJets_[j]->p4()+selectedJets_[k]->p4()).M();
-         if ( !config_->signalregion_ )
+         Jet * jet = selectedJets_[j];
+         std::cout << "Jet " << j+1 << ": pt = " << jet -> pt() << ", eta = " << jet -> eta() << ", btag = " << btag(*jet,config_->btagalgo_) << " puid = " << jet -> pileupJetIdFullId() << "  other stuff : " ;
+         std::cout <<  jet -> neutralHadronFraction() << ", ";
+         std::cout <<  jet -> neutralEmFraction()     << ", ";
+         std::cout <<  jet -> neutralMultiplicity()   << ", ";
+         std::cout <<  jet -> chargedHadronFraction() << ", ";
+         std::cout <<  jet -> chargedEmFraction()     << ", ";
+         std::cout <<  jet -> chargedMultiplicity()   << ", ";
+         std::cout <<  jet -> muonFraction()          << ", ";
+         std::cout <<  jet -> constituents()          << ", ";
+         std::cout <<  std::endl;
+      }
+      std::cout << "-----------" << std::endl;
+      
+      if ( ! onlineJetMatching() ) return false;
+      h1_["cutflow"] -> Fill(2);
+      ++cutflow_[2];
+      
+      if ( ! Analyser::selectionJet() ) return false;
+      h1_["cutflow"] -> Fill(3);
+      ++cutflow_[3];
+      
+      // additional jet selection for MssmHbb
+      if ( ! selectionJet() ) return false;
+      h1_["cutflow"] -> Fill(4);
+      ++cutflow_[4];
+      
+      if ( ! selectionBJet(1) ) return false;
+      if ( ! selectionBJet(2) ) return false;
+      h1_["cutflow"] -> Fill(5);
+      ++cutflow_[5];
+      
+      if ( config_->signalregion_ )
+      {
+         if ( ! selectionBJet(3) ) return false;
+      }
+      else
+      {
+         if ( ! selectionNonBJet(3) ) return false;
+      }
+      h1_["cutflow"] -> Fill(6);
+      ++cutflow_[6];
+            
+      
+      int n = config_->njetsmin_;
+      
+      for ( int j = 0; j < n; ++j )
+      {
+         h1_[Form("pt_jet%d",j+1)] -> Fill(selectedJets_[j]->pt());
+         h1_[Form("eta_jet%d",j+1)] -> Fill(selectedJets_[j]->eta());
+         h1_[Form("btag_jet%d",j+1)] -> Fill(btag(*selectedJets_[j],config_->btagalgo_));
+         for ( int k = j+1; k < n && j < n; ++k )
          {
-            h1_[Form("m_jet%d%d",j+1,k+1)]  -> Fill(m);
+            float deltaR = selectedJets_[j]->deltaR(*selectedJets_[k]);
+            h1_[Form("dr_jet%d%d",j+1,k+1)]    -> Fill(deltaR);
+            float deltaEta = fabs(selectedJets_[j]->eta() - selectedJets_[k]->eta());
+            h1_[Form("deta_jet%d%d",j+1,k+1)]  -> Fill(deltaEta);
+            float m = (selectedJets_[j]->p4()+selectedJets_[k]->p4()).M();
+            if ( !config_->signalregion_ )
+            {
+               h1_[Form("m_jet%d%d",j+1,k+1)]  -> Fill(m);
+            }
          }
       }
    }
-   
+      
    return true;
 }
 
 bool MssmHbbAnalyser::selectionJet()
 {
-   if ( ! Analyser::selectionJet() ) return false;
-   
    bool isgood = true;
    
    // jet kinematics and btag
@@ -113,52 +170,20 @@ bool MssmHbbAnalyser::selectionJet()
    return isgood;
 }
 
-bool MssmHbbAnalyser::selectionBJet()
-{
-   bool isgood = true;
-   
-   if ( config_->nbjetsmin_ < 3 )
-   {
-      std::cout << "*** warning ***" << std::endl;
-      std::cout << "   This analysis require at least 3 b-tagged jets." << std::endl;
-      std::cout << "   Event *not* selected!" << std::endl;
-      return false;
-   }
-   
-   if ( selectedJets_.size() == 0 ) isgood = (isgood && selectionJet());
-   
-   if ( !isgood || (int)selectedJets_.size() < config_->nbjetsmin_ ) return false;
-   
-   // jet kinematics and btag
-   std::map<std::string,bool> isOk;
-   for ( int j = 0; j < config_->nbjetsmin_ ; ++j )
-   {
-      isOk[Form("btag%d",j)]  = true; 
-   }
-
-   // kinematic and btag selection
-   for ( int j = 0 ; j < config_->nbjetsmin_ ; ++j )
-   {
-      if ( ! config_->signalregion_ && j == (config_->nonbtagjet_-1) )
-      {
-         if ( btag(*selectedJets_[j],config_->btagalgo_) > config_->nonbtagwp_ ) isOk[Form("btag%d",j)]     = false;
-         continue;
-      }
-      if ( btag(*selectedJets_[j],config_->btagalgo_) < config_->jetsbtagmin_[j]   && !(config_->jetsbtagmin_[j] < 0) ) isOk[Form("btag%d",j)]     = false;
-   }
-   
-   for ( auto & ok : isOk )
-      isgood = ( isgood && ok.second );
-   
-   if ( ! isgood ) return false;
-
-   
-   return isgood;
-}
-
-
 void MssmHbbAnalyser::histograms(const std::string & obj, const int & n)
 {
    Analyser::histograms(obj,n);
    
 }
+
+
+void MssmHbbAnalyser::end()
+{
+   Analyser::end();
+   std::cout << "Cut flow" << std::endl;
+   for ( auto & n : cutflow_ )
+      std::cout << n << std::endl;
+      
+   
+}
+
