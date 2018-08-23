@@ -170,22 +170,3 @@ void MssmHbbAnalyser::end()
    
 }
 
-bool MssmHbbAnalyser::selectionJetId()
-{
-   bool isgood = true;
-   
-   if ( config_->jetsCol_ != "" )
-   {
-      auto slimmedJets = analysis_->collection<Jet>("Jets");
-      selectedJets_.clear();
-      for ( int j = 0 ; j < slimmedJets->size() ; ++j )
-      {
-         if ( slimmedJets->at(j).id(config_->jetsid_) && slimmedJets->at(j).pileupJetIdFullId(config_->jetspuid_) ) selectedJets_.push_back(&slimmedJets->at(j));
-      }
-      if ( (int)selectedJets_.size() < config_->njetsmin_ ) return false;
-   }
-   
-   return isgood;
-   
-}
-
