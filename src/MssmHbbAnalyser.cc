@@ -66,24 +66,7 @@ bool MssmHbbAnalyser::event(const int & i)
       if ( ! selectionJetId() ) return false;
       h1_["cutflow"] -> Fill(1);
       ++cutflow_[1];
-      
-      std::cout << "Event = " << i << " / " << analysis_->event() << " run =  " << analysis_->run() << " lumi section = " << analysis_->lumiSection() << std::endl;
-      for ( int j = 0; j < 3 ; ++j )
-      {
-         Jet * jet = selectedJets_[j];
-         std::cout << "Jet " << j+1 << ": pt = " << jet -> pt() << ", eta = " << jet -> eta() << ", btag = " << btag(*jet,config_->btagalgo_) << " puid = " << jet -> pileupJetIdFullId() << "  other stuff : " ;
-         std::cout <<  jet -> neutralHadronFraction() << ", ";
-         std::cout <<  jet -> neutralEmFraction()     << ", ";
-         std::cout <<  jet -> neutralMultiplicity()   << ", ";
-         std::cout <<  jet -> chargedHadronFraction() << ", ";
-         std::cout <<  jet -> chargedEmFraction()     << ", ";
-         std::cout <<  jet -> chargedMultiplicity()   << ", ";
-         std::cout <<  jet -> muonFraction()          << ", ";
-         std::cout <<  jet -> constituents()          << ", ";
-         std::cout <<  std::endl;
-      }
-      std::cout << "-----------" << std::endl;
-      
+            
       if ( ! onlineJetMatching() ) return false;
       h1_["cutflow"] -> Fill(2);
       ++cutflow_[2];
@@ -184,6 +167,25 @@ void MssmHbbAnalyser::end()
    for ( auto & n : cutflow_ )
       std::cout << n << std::endl;
       
+   
+}
+
+bool MssmHbbAnalyser::selectionJetId()
+{
+   bool isgood = true;
+   
+   if ( config_->jetsCol_ != "" )
+   {
+      auto slimmedJets = analysis_->collection<Jet>("Jets");
+      selectedJets_.clear();
+      for ( int j = 0 ; j < slimmedJets->size() ; ++j )
+      {
+         if ( slimmedJets->at(j).id(config_->jetsid_) && slimmedJets->at(j).pileupJetIdFullId(config_->jetspuid_) ) selectedJets_.push_back(&slimmedJets->at(j));
+      }
+      if ( (int)selectedJets_.size() < config_->njetsmin_ ) return false;
+   }
+   
+   return isgood;
    
 }
 
