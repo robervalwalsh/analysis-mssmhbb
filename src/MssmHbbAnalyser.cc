@@ -65,25 +65,27 @@ bool MssmHbbAnalyser::event(const int & i)
    {
       if ( ! selectionJetId() ) return false;
       h1_["cutflow"] -> Fill(1);
-      ++cutflow_[1];
             
-      if ( ! onlineJetMatching() ) return false;
-      h1_["cutflow"] -> Fill(2);
-      ++cutflow_[2];
-      
+      // standard jet selection
       if ( ! Analyser::selectionJet() ) return false;
-      h1_["cutflow"] -> Fill(3);
-      ++cutflow_[3];
+      h1_["cutflow"] -> Fill(2);
       
       // additional jet selection for MssmHbb
       if ( ! selectionJet() ) return false;
-      h1_["cutflow"] -> Fill(4);
-      ++cutflow_[4];
+      h1_["cutflow"] -> Fill(3);
       
+      // matching to online jets
+      if ( ! onlineJetMatching() ) return false;
+      h1_["cutflow"] -> Fill(4);
+      
+      // btag of two leading jets
       if ( ! selectionBJet(1) ) return false;
       if ( ! selectionBJet(2) ) return false;
       h1_["cutflow"] -> Fill(5);
-      ++cutflow_[5];
+      
+      // matching to online btag objects
+      if ( ! onlineBJetMatching() ) return false;
+      h1_["cutflow"] -> Fill(6);
       
       if ( config_->signalregion_ )
       {
@@ -93,9 +95,7 @@ bool MssmHbbAnalyser::event(const int & i)
       {
          if ( ! selectionNonBJet(3) ) return false;
       }
-      h1_["cutflow"] -> Fill(6);
-      ++cutflow_[6];
-            
+      h1_["cutflow"] -> Fill(7);
       
       int n = config_->njetsmin_;
       
@@ -163,10 +163,6 @@ void MssmHbbAnalyser::histograms(const std::string & obj, const int & n)
 void MssmHbbAnalyser::end()
 {
    Analyser::end();
-   std::cout << "Cut flow" << std::endl;
-   for ( auto & n : cutflow_ )
-      std::cout << n << std::endl;
-      
    
 }
 
