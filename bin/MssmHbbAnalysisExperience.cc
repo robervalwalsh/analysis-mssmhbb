@@ -41,7 +41,7 @@ int main(int argc, char ** argv)
 // 
    int counter = 0;
       
-   int maxevt = mssmhbb.config()->nevtmax_;
+   int maxevt = mssmhbb.config()->nEventsMax();
    if ( maxevt < 0 ) maxevt = mssmhbb.analysis()->size();
    for ( int i = 0 ; i < maxevt ; ++i )
    {
