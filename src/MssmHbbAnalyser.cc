@@ -55,7 +55,10 @@ MssmHbbAnalyser::~MssmHbbAnalyser()
 
 bool MssmHbbAnalyser::event(const int & i)
 {
+   // parent function checks only json and run range validity
    if ( ! Analyser::event(i) ) return false;
+   
+   if ( config_->override() )  return true;
    
    if ( ! selectionTrigger() ) return false;
    h1_["cutflow"] -> Fill(0);
