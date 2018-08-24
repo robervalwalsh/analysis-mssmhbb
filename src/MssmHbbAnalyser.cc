@@ -35,7 +35,7 @@ MssmHbbAnalyser::MssmHbbAnalyser()
 
 MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : Analyser(argc,argv)
 {
-   histograms("jet",config_->njetsmin_);
+   histograms("jet",config_->nJetsMin());
    for ( int i = 0; i < 20; ++i ) cutflow_.push_back(0);
    
 }
@@ -87,7 +87,7 @@ bool MssmHbbAnalyser::event(const int & i)
       if ( ! onlineBJetMatching() ) return false;
       h1_["cutflow"] -> Fill(6);
       
-      if ( config_->signalregion_ )
+      if ( config_->signalRegion() )
       {
          if ( ! selectionBJet(3) ) return false;
       }
@@ -97,7 +97,7 @@ bool MssmHbbAnalyser::event(const int & i)
       }
       h1_["cutflow"] -> Fill(7);
       
-      int n = config_->njetsmin_;
+      int n = config_->nJetsMin();
       
       for ( int j = 0; j < n; ++j )
       {
@@ -111,7 +111,7 @@ bool MssmHbbAnalyser::event(const int & i)
             float deltaEta = fabs(selectedJets_[j]->eta() - selectedJets_[k]->eta());
             h1_[Form("deta_jet%d%d",j+1,k+1)]  -> Fill(deltaEta);
             float m = (selectedJets_[j]->p4()+selectedJets_[k]->p4()).M();
-            if ( !config_->signalregion_ )
+            if ( !config_->signalRegion() )
             {
                h1_[Form("m_jet%d%d",j+1,k+1)]  -> Fill(m);
             }
@@ -128,23 +128,23 @@ bool MssmHbbAnalyser::selectionJet()
    
    // jet kinematics and btag
    std::map<std::string,bool> isOk;
-   for ( int j = 0; j < config_->njetsmin_ ; ++j )
+   for ( int j = 0; j < config_->nJetsMin() ; ++j )
    {
-      for ( int k = j+1; k < config_->njetsmin_ && j < config_->njetsmin_; ++k )
+      for ( int k = j+1; k < config_->nJetsMin() && j < config_->nJetsMin(); ++k )
       {
          isOk[Form("dr%d%d",j,k)]   = true;
          isOk[Form("deta%d%d",j,k)] = true;
       }
    }
    // kinematic selection
-   for ( int j = 0 ; j < config_->njetsmin_ ; ++j )
+   for ( int j = 0 ; j < config_->nJetsMin() ; ++j )
    {
       // delta R between jets
-      for ( int k = j+1; k < config_->njetsmin_ && j < config_->njetsmin_; ++k )
+      for ( int k = j+1; k < config_->nJetsMin() && j < config_->nJetsMin(); ++k )
          if ( selectedJets_[j]->deltaR(*selectedJets_[k]) < config_->drmin_ )                                            isOk[Form("dr%d%d",j,k)]   = false;
    }
    // delta eta 2 leading jets
-   if ( config_->njetsmin_ > 1 )
+   if ( config_->nJetsMin() > 1 )
       if ( fabs(selectedJets_[0]->eta() - selectedJets_[1]->eta()) > config_->detamax_ && !(config_->detamax_ < 0) )     isOk[Form("deta%d%d",0,1)] = false;
    
    for ( auto & ok : isOk )
