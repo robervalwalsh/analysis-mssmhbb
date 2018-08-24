@@ -62,7 +62,6 @@ bool MssmHbbAnalyser::event(const int & i)
    
    if ( ! selectionTrigger() ) return false;
    h1_["cutflow"] -> Fill(0);
-   ++cutflow_[0];
       
    if ( analysisWithJets() )
    {
@@ -100,26 +99,8 @@ bool MssmHbbAnalyser::event(const int & i)
       }
       h1_["cutflow"] -> Fill(7);
       
-      int n = config_->nJetsMin();
+      fillJetHistograms();
       
-      for ( int j = 0; j < n; ++j )
-      {
-         h1_[Form("pt_jet%d",j+1)] -> Fill(selectedJets_[j]->pt());
-         h1_[Form("eta_jet%d",j+1)] -> Fill(selectedJets_[j]->eta());
-         h1_[Form("btag_jet%d",j+1)] -> Fill(btag(*selectedJets_[j],config_->btagalgo_));
-         for ( int k = j+1; k < n && j < n; ++k )
-         {
-            float deltaR = selectedJets_[j]->deltaR(*selectedJets_[k]);
-            h1_[Form("dr_jet%d%d",j+1,k+1)]    -> Fill(deltaR);
-            float deltaEta = fabs(selectedJets_[j]->eta() - selectedJets_[k]->eta());
-            h1_[Form("deta_jet%d%d",j+1,k+1)]  -> Fill(deltaEta);
-            float m = (selectedJets_[j]->p4()+selectedJets_[k]->p4()).M();
-            if ( !config_->signalRegion() )
-            {
-               h1_[Form("m_jet%d%d",j+1,k+1)]  -> Fill(m);
-            }
-         }
-      }
    }
       
    return true;
