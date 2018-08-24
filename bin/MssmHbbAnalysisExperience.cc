@@ -95,16 +95,16 @@ int main(int argc, char ** argv)
          if ( ! mssmhbb.onlineBJetMatching() ) continue;
          h_cut -> Fill(6);
          
+         // 3rd jet selection
+         if ( ! mssmhbb.Analyser::selectionJet(3) ) continue;
+         h_cut -> Fill(7);
+         
          // delta R jet selection
          if ( ! mssmhbb.Analyser::selectionJetDr(1,2,-1.) ) continue;
          if ( ! mssmhbb.Analyser::selectionJetDr(1,3,-1.) ) continue;
          if ( ! mssmhbb.Analyser::selectionJetDr(2,3,-1.) ) continue;
-         h_cut -> Fill(7);
-         
-         
-         // 3rd jet selection
-         if ( ! mssmhbb.Analyser::selectionJet(3) ) continue;
          h_cut -> Fill(8);
+         
          
          if ( mssmhbb.config()->signalRegion() )
          {
