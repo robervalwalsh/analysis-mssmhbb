@@ -35,31 +35,17 @@ int main(int argc, char ** argv)
    
    MssmHbbAnalyser mssmhbb(argc,argv);
    
-   if ( mssmhbb.config()->override() ) 
-      std::cout << "*w* The event selection was overridden" << std::endl;
-      
    // Analysis of events
-   std::cout << "This analysis has " << mssmhbb.analysis()->size() << " events" << std::endl;
+   std::cout << "The sample size is " << mssmhbb.analysis()->size() << " events" << std::endl;
    
 // 
-   int counter = 0;
-      
-   int maxevt = mssmhbb.config()->nEventsMax();
-   if ( maxevt < 0 ) maxevt = mssmhbb.analysis()->size();
-   for ( int i = 0 ; i < maxevt ; ++i )
+   for ( int i = 0 ; i < mssmhbb.nEvents() ; ++i )
    {
       if ( i > 0 && i%100000==0 ) std::cout << i << "  events processed! " << std::endl;
       bool goodEvent = mssmhbb.event(i);
       if ( ! goodEvent ) continue;
       
-      if ( ! mssmhbb.config()->override() )
-      {
-         ++counter;  
-         continue;
-      }
-   
       // histograms
-//      auto h1 = mssmhbb.H1Fs();
       auto h_cut = mssmhbb.H1F("cutflow");
          
       if ( ! mssmhbb.selectionTrigger() ) continue;
@@ -70,12 +56,9 @@ int main(int argc, char ** argv)
          if ( ! mssmhbb.selectionJetId() ) continue;
          h_cut -> Fill(1);
          
-         // you now have a list of selectedJets that you can play with
-//         std::vector<Jet*> selectedJets = mssmhbb.selectedJets();  FIXME
-               
          // standard jet selection
-         if ( ! mssmhbb.Analyser::selectionJet(1) ) continue;
-         if ( ! mssmhbb.Analyser::selectionJet(2) ) continue;
+         if ( ! mssmhbb.selectionJet(1) ) continue;
+         if ( ! mssmhbb.selectionJet(2) ) continue;
          h_cut -> Fill(2);
          
          // additional jet selection for MssmHbb
@@ -96,13 +79,13 @@ int main(int argc, char ** argv)
          h_cut -> Fill(6);
          
          // 3rd jet selection
-         if ( ! mssmhbb.Analyser::selectionJet(3) ) continue;
+         if ( ! mssmhbb.selectionJet(3) ) continue;
          h_cut -> Fill(7);
          
          // delta R jet selection
-         if ( ! mssmhbb.Analyser::selectionJetDr(1,2,-1.) ) continue;
-         if ( ! mssmhbb.Analyser::selectionJetDr(1,3,-1.) ) continue;
-         if ( ! mssmhbb.Analyser::selectionJetDr(2,3,-1.) ) continue;
+         if ( ! mssmhbb.selectionJetDr(1,2,-1.) ) continue;
+         if ( ! mssmhbb.selectionJetDr(1,3,-1.) ) continue;
+         if ( ! mssmhbb.selectionJetDr(2,3,-1.) ) continue;
          h_cut -> Fill(8);
          
          
@@ -120,11 +103,7 @@ int main(int argc, char ** argv)
       }
       
    }
-      
    mssmhbb.end();
-   
-   
-   std::cout << counter << " events passed the selection" << std::endl;
    
 } //end main
 
