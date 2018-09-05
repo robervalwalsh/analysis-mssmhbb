@@ -35,8 +35,8 @@ MssmHbbAnalyser::MssmHbbAnalyser()
 
 MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : Analyser(argc,argv)
 {
+   histograms("cutflow");
    histograms("jet",config_->nJetsMin());
-   for ( int i = 0; i < 20; ++i ) cutflow_.push_back(0);
    
 }
 
@@ -58,83 +58,7 @@ bool MssmHbbAnalyser::event(const int & i)
    // parent function checks only json and run range validity
    if ( ! Analyser::event(i) ) return false;
    
-   if ( config_->override() )  return true;
-   
-   if ( ! selectionTrigger() ) return false;
-   h1_["cutflow"] -> Fill(0);
-      
-   if ( analysisWithJets() )
-   {
-      if ( ! selectionJetId() ) return false;
-      h1_["cutflow"] -> Fill(1);
-            
-      // standard jet selection
-      if ( ! Analyser::selectionJet() ) return false;
-      h1_["cutflow"] -> Fill(2);
-      
-      // additional jet selection for MssmHbb
-      if ( ! selectionJet() ) return false;
-      h1_["cutflow"] -> Fill(3);
-      
-      // matching to online jets
-      if ( ! onlineJetMatching() ) return false;
-      h1_["cutflow"] -> Fill(4);
-      
-      // btag of two leading jets
-      if ( ! selectionBJet(1) ) return false;
-      if ( ! selectionBJet(2) ) return false;
-      h1_["cutflow"] -> Fill(5);
-      
-      // matching to online btag objects
-      if ( ! onlineBJetMatching() ) return false;
-      h1_["cutflow"] -> Fill(6);
-      
-      if ( config_->signalRegion() )
-      {
-         if ( ! selectionBJet(3) ) return false;
-      }
-      else
-      {
-         if ( ! selectionNonBJet(3) ) return false;
-      }
-      h1_["cutflow"] -> Fill(7);
-      
-      fillJetHistograms();
-      
-   }
-      
    return true;
-}
-
-bool MssmHbbAnalyser::selectionJet()
-{
-   bool isgood = true;
-   
-   // jet kinematics and btag
-   std::map<std::string,bool> isOk;
-   for ( int j = 0; j < config_->nJetsMin() ; ++j )
-   {
-      for ( int k = j+1; k < config_->nJetsMin() && j < config_->nJetsMin(); ++k )
-      {
-         isOk[Form("dr%d%d",j,k)]   = true;
-         isOk[Form("deta%d%d",j,k)] = true;
-      }
-   }
-   // kinematic selection
-   for ( int j = 0 ; j < config_->nJetsMin() ; ++j )
-   {
-      // delta R between jets
-      for ( int k = j+1; k < config_->nJetsMin() && j < config_->nJetsMin(); ++k )
-         if ( selectedJets_[j]->deltaR(*selectedJets_[k]) < config_->drmin_ )                                            isOk[Form("dr%d%d",j,k)]   = false;
-   }
-   // delta eta 2 leading jets
-   if ( config_->nJetsMin() > 1 )
-      if ( fabs(selectedJets_[0]->eta() - selectedJets_[1]->eta()) > config_->detamax_ && !(config_->detamax_ < 0) )     isOk[Form("deta%d%d",0,1)] = false;
-   
-   for ( auto & ok : isOk )
-      isgood = ( isgood && ok.second );
-   
-   return isgood;
 }
 
 void MssmHbbAnalyser::histograms(const std::string & obj, const int & n)
@@ -143,10 +67,15 @@ void MssmHbbAnalyser::histograms(const std::string & obj, const int & n)
    
 }
 
-
 void MssmHbbAnalyser::end()
 {
    Analyser::end();
+   
+}
+
+void MssmHbbAnalyser::fillJetHistograms()
+{
+   Analyser::fillJetHistograms();
    
 }
 

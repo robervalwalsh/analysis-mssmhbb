@@ -43,16 +43,13 @@ namespace analysis {
            ~MssmHbbAnalyser();
            
             virtual bool event(const int &);
-            virtual void histograms(const std::string &, const int &);
-            virtual bool selectionJet();        
+            virtual void histograms(const std::string &, const int & n = 1);
+            virtual void fillJetHistograms();
             virtual void end();        
             // ----------member data ---------------------------
          protected:
                
          private:
-               
-               std::vector<int> cutflow_;
-               
                
          public:
 
