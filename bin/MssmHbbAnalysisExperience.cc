@@ -45,52 +45,40 @@ int main(int argc, char ** argv)
       bool goodEvent = mssmhbb.event(i);
       if ( ! goodEvent ) continue;
       
-      // histograms
-      auto h_cut = mssmhbb.H1F("cutflow");
-         
    // trigger selection
       if ( ! mssmhbb.selectionTrigger() )          continue;
-      h_cut -> Fill(0);
          
    // jet identification selection
       if ( ! mssmhbb.selectionJetId() )            continue;
       if ( ! mssmhbb.selectionJetPileupId() )      continue;
       if ( ! mssmhbb.selectionNJets() )            continue;
-      h_cut -> Fill(1);
       
-   //  jet kinematic selection
+   //  1st and 2nd jet kinematic selection
       if ( ! mssmhbb.selectionJet(1) )             continue;
       if ( ! mssmhbb.selectionJet(2) )             continue;
-      h_cut -> Fill(2);
       
-   // jet delta eta selection
+   // jet delta eta 1,2 selection
       if ( ! mssmhbb.selectionJetDeta(1,2,1.5) )   continue;
-      h_cut -> Fill(3);
       
-   // matching to online jets
+   // jets 1, 2 matching to online jets
       if ( ! mssmhbb.onlineJetMatching(1) )        continue;
       if ( ! mssmhbb.onlineJetMatching(2) )        continue;
-      h_cut -> Fill(4);
       
    // btag of two leading jets
       if ( ! mssmhbb.selectionBJet(1) )            continue;
       if ( ! mssmhbb.selectionBJet(2) )            continue;
-      h_cut -> Fill(5);
       
-   // matching to online btag objects
+   // jets 1,2 matching to online btag objects
       if ( ! mssmhbb.onlineBJetMatching(1) )       continue;
       if ( ! mssmhbb.onlineBJetMatching(2) )       continue;
-      h_cut -> Fill(6);
       
    // 3rd jet kinematic selection
       if ( ! mssmhbb.selectionJet(3) )             continue;
-      h_cut -> Fill(7);
       
       // delta R jet selection
       if ( ! mssmhbb.selectionJetDr(1,2,-1.) )     continue;
       if ( ! mssmhbb.selectionJetDr(1,3,-1.) )     continue;
       if ( ! mssmhbb.selectionJetDr(2,3,-1.) )     continue;
-      h_cut -> Fill(8);
       
    // 3rd jet btag selection
       if ( mssmhbb.config()->signalRegion() )
@@ -101,7 +89,6 @@ int main(int argc, char ** argv)
       {
          if ( ! mssmhbb.selectionNonBJet(3) )      continue;
       }
-      h_cut -> Fill(9);
       
       mssmhbb.fillJetHistograms();
       
