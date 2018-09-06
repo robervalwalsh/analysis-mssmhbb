@@ -58,7 +58,7 @@ int main(int argc, char ** argv)
       if ( ! mssmhbb.selectionJet(2) )             continue;
       
    // jet delta eta 1,2 selection
-      if ( ! mssmhbb.selectionJetDeta(1,2,1.5) )   continue;
+      if ( ! mssmhbb.selectionJetDeta(1,2) )   continue;
       
    // jets 1, 2 matching to online jets
       if ( ! mssmhbb.onlineJetMatching(1) )        continue;
@@ -76,9 +76,9 @@ int main(int argc, char ** argv)
       if ( ! mssmhbb.selectionJet(3) )             continue;
       
       // delta R jet selection
-      if ( ! mssmhbb.selectionJetDr(1,2,-1.) )     continue;
-      if ( ! mssmhbb.selectionJetDr(1,3,-1.) )     continue;
-      if ( ! mssmhbb.selectionJetDr(2,3,-1.) )     continue;
+      if ( ! mssmhbb.selectionJetDr(1,2) )     continue;
+      if ( ! mssmhbb.selectionJetDr(1,3) )     continue;
+      if ( ! mssmhbb.selectionJetDr(2,3) )     continue;
       
    // 3rd jet btag selection
       if ( mssmhbb.config()->signalRegion() )
