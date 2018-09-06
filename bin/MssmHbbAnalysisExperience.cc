@@ -46,48 +46,48 @@ int main(int argc, char ** argv)
       if ( ! goodEvent ) continue;
       
    // trigger selection
-      if ( ! mssmhbb.selectionTrigger() )          continue;
+      if ( ! mssmhbb.selectionTrigger()       )   continue;
          
    // jet identification selection
-      if ( ! mssmhbb.selectionJetId() )            continue;
-      if ( ! mssmhbb.selectionJetPileupId() )      continue;
-      if ( ! mssmhbb.selectionNJets() )            continue;
+      if ( ! mssmhbb.selectionJetId()         )   continue;
+      if ( ! mssmhbb.selectionJetPileupId()   )   continue;
+      if ( ! mssmhbb.selectionNJets()         )   continue;
       
    //  1st and 2nd jet kinematic selection
-      if ( ! mssmhbb.selectionJet(1) )             continue;
-      if ( ! mssmhbb.selectionJet(2) )             continue;
+      if ( ! mssmhbb.selectionJet(1)          )   continue;
+      if ( ! mssmhbb.selectionJet(2)          )   continue;
       
    // jet delta eta 1,2 selection
-      if ( ! mssmhbb.selectionJetDeta(1,2) )   continue;
+      if ( ! mssmhbb.selectionJetDeta(1,2)    )   continue;
       
    // jets 1, 2 matching to online jets
-      if ( ! mssmhbb.onlineJetMatching(1) )        continue;
-      if ( ! mssmhbb.onlineJetMatching(2) )        continue;
+      if ( ! mssmhbb.onlineJetMatching(1)     )   continue;
+      if ( ! mssmhbb.onlineJetMatching(2)     )   continue;
       
    // btag of two leading jets
-      if ( ! mssmhbb.selectionBJet(1) )            continue;
-      if ( ! mssmhbb.selectionBJet(2) )            continue;
+      if ( ! mssmhbb.selectionBJet(1)         )   continue;
+      if ( ! mssmhbb.selectionBJet(2)         )   continue;
       
    // jets 1,2 matching to online btag objects
-      if ( ! mssmhbb.onlineBJetMatching(1) )       continue;
-      if ( ! mssmhbb.onlineBJetMatching(2) )       continue;
+      if ( ! mssmhbb.onlineBJetMatching(1)    )   continue;
+      if ( ! mssmhbb.onlineBJetMatching(2)    )   continue;
       
    // 3rd jet kinematic selection
-      if ( ! mssmhbb.selectionJet(3) )             continue;
+      if ( ! mssmhbb.selectionJet(3)          )   continue;
       
       // delta R jet selection
-      if ( ! mssmhbb.selectionJetDr(1,2) )     continue;
-      if ( ! mssmhbb.selectionJetDr(1,3) )     continue;
-      if ( ! mssmhbb.selectionJetDr(2,3) )     continue;
+      if ( ! mssmhbb.selectionJetDr(1,2)      )   continue;
+      if ( ! mssmhbb.selectionJetDr(1,3)      )   continue;
+      if ( ! mssmhbb.selectionJetDr(2,3)      )   continue;
       
    // 3rd jet btag selection
-      if ( mssmhbb.config()->signalRegion() )
+      if ( mssmhbb.config()->signalRegion()   )
       {
-         if ( ! mssmhbb.selectionBJet(3) )         continue;
+         if ( ! mssmhbb.selectionBJet(3)      )   continue;
       }
       else
       {
-         if ( ! mssmhbb.selectionNonBJet(3) )      continue;
+         if ( ! mssmhbb.selectionNonBJet(3)   )   continue;
       }
       
       mssmhbb.fillJetHistograms();
