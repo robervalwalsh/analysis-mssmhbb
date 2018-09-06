@@ -33,10 +33,10 @@ MssmHbbAnalyser::MssmHbbAnalyser()
 {
 }
 
-MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : Analyser(argc,argv)
+MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : BaseAnalyser(argc,argv), Analyser(argc,argv)
 {
-   histograms("cutflow");
-   histograms("jet",config_->nJetsMin());
+//   histograms("cutflow");
+//   histograms("jet",config_->nJetsMin());
    
 }
 
@@ -53,29 +53,29 @@ MssmHbbAnalyser::~MssmHbbAnalyser()
 // ------------ method called for each event  ------------
 
 
-bool MssmHbbAnalyser::event(const int & i)
-{
-   // parent function checks only json and run range validity
-   if ( ! Analyser::event(i) ) return false;
-   
-   return true;
-}
-
-void MssmHbbAnalyser::histograms(const std::string & obj, const int & n)
-{
-   Analyser::histograms(obj,n);
-   
-}
-
-void MssmHbbAnalyser::end()
-{
-   Analyser::end();
-   
-}
-
-void MssmHbbAnalyser::fillJetHistograms()
-{
-   Analyser::fillJetHistograms();
-   
-}
-
+// bool MssmHbbAnalyser::event(const int & i)
+// {
+//    // parent function checks only json and run range validity
+//    if ( ! Analyser::event(i) ) return false;
+//    
+//    return true;
+// }
+// 
+// void MssmHbbAnalyser::histograms(const std::string & obj, const int & n)
+// {
+// //   Analyser::histograms(obj,n);
+//    
+// }
+// 
+// void MssmHbbAnalyser::end()
+// {
+//    Analyser::end();
+//    
+// }
+// 
+// void MssmHbbAnalyser::fillJetHistograms()
+// {
+//    Analyser::fillJetHistograms();
+//    
+// }
+// 
