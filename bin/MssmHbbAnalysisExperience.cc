@@ -90,10 +90,9 @@ int main(int argc, char ** argv)
          if ( ! mssmhbb.selectionNonBJet(3)   )   continue;
       }
       
-      mssmhbb.fillJetHistograms();
+//       mssmhbb.fillJetHistograms();
       
    }
-   mssmhbb.end();
    
 } //end main
 
