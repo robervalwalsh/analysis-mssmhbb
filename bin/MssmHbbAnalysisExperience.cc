@@ -35,6 +35,8 @@ int main(int argc, char ** argv)
    
    MssmHbbAnalyser mssmhbb(argc,argv);
    
+   mssmhbb.jetHistograms(3,"nominal");
+   
    // Analysis of events
    std::cout << "The sample size is " << mssmhbb.analysis()->size() << " events" << std::endl;
    
@@ -90,7 +92,7 @@ int main(int argc, char ** argv)
          if ( ! mssmhbb.selectionNonBJet(3)   )   continue;
       }
       
-      mssmhbb.fillJetHistograms();
+      mssmhbb.fillJetHistograms("nominal");
       
    }
    
