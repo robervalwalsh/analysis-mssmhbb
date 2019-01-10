@@ -33,6 +33,10 @@ int main(int argc, char * argv[])
    // Input files list
    Analysis analysis(inputlist_);
    
+   int seed = analysis.seed(seedfile_);
+   if ( seed <= 0 ) std::cout << "seed value invalid or file does not exist" << std::endl;
+   else std::cout << "Seed for random number generator = " << seed << std::endl;
+   
    // Jets
    analysis.addTree<Jet> ("Jets",jetsCol_);
 
