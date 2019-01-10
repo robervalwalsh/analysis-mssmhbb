@@ -41,6 +41,10 @@ int main(int argc, char ** argv)
    // Analysis of events
    std::cout << "The sample size is " << mssmhbb.analysis()->size() << " events" << std::endl;
    
+   int seed = mssmhbb.seed();
+   if ( seed > 0 ) std::cout << "Seed value for random number = " << seed << std::endl;
+   else            std::cout << "NO seed value for random number :( " << std::endl;
+   
 // 
    for ( int i = 0 ; i < mssmhbb.nEvents() ; ++i )
    {
