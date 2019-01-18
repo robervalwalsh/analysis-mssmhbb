@@ -48,7 +48,6 @@ int main(int argc, char ** argv)
 // 
    for ( int i = 0 ; i < mssmhbb.nEvents() ; ++i )
    {
-      float weight = 1.;
       if ( i > 0 && i%100000==0 ) std::cout << i << "  events processed! " << std::endl;
       bool goodEvent = mssmhbb.event(i);
       if ( ! goodEvent ) continue;
@@ -101,7 +100,7 @@ int main(int argc, char ** argv)
          if ( ! mssmhbb.selectionNonBJet(3)   )   continue;
       }
       
-      mssmhbb.fillJetHistograms("nominal",weight);
+      mssmhbb.fillJetHistograms("nominal");
       
    }
    
