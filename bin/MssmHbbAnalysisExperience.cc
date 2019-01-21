@@ -36,6 +36,7 @@ int main(int argc, char ** argv)
    MssmHbbAnalyser mssmhbb(argc,argv);
    
    mssmhbb.jetHistograms(3,"initial");
+   mssmhbb.jetHistograms(3,"after_bregression");
    if ( mssmhbb.config()->isMC() )
    {
       mssmhbb.jetHistograms(3,"after_jer");
@@ -120,9 +121,6 @@ int main(int argc, char ** argv)
          if ( ! mssmhbb.selectionNJets()         )   continue;
          mssmhbb.fillJetHistograms("initial");
 
-         mssmhbb.actionApplyJER();
-         mssmhbb.fillJetHistograms("after_jer");
-         
       //  1st and 2nd jet kinematic selection
          if ( ! mssmhbb.selectionJet(1)          )   continue;
          if ( ! mssmhbb.selectionJet(2)          )   continue;
@@ -160,13 +158,21 @@ int main(int argc, char ** argv)
       // jets 1,2 matching to online btag objects
          if ( ! mssmhbb.onlineBJetMatching(1)    )   continue;
          if ( ! mssmhbb.onlineBJetMatching(2)    )   continue;
-            
+          
       // btag SF
          mssmhbb.fillJetHistograms("before_btagsf");
          mssmhbb.actionApplyBtagSF(1);
          mssmhbb.actionApplyBtagSF(2);
          mssmhbb.actionApplyBtagSF(3);
          mssmhbb.fillJetHistograms("after_btagsf");
+         
+      // jet energy resolution  
+         mssmhbb.actionApplyJER();
+         mssmhbb.fillJetHistograms("after_jer");
+         
+      // b energy regression
+         mssmhbb.actionApplyBjetRegression();
+         mssmhbb.fillJetHistograms("after_bregression");
          
       // final histograms
          mssmhbb.fillJetHistograms("final");
