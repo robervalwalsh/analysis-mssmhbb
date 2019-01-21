@@ -35,8 +35,14 @@ int main(int argc, char ** argv)
    
    MssmHbbAnalyser mssmhbb(argc,argv);
    
-   mssmhbb.jetHistograms(3,"precut");
-   mssmhbb.jetHistograms(3,"nominal");
+   mssmhbb.jetHistograms(3,"initial");
+   if ( mssmhbb.config()->isMC() )
+   {
+      mssmhbb.jetHistograms(3,"after_jer");
+      mssmhbb.jetHistograms(3,"before_btagsf");
+      mssmhbb.jetHistograms(3,"after_btagsf");
+   }
+   mssmhbb.jetHistograms(3,"final");
    
    // Analysis of events
    std::cout << "The sample size is " << mssmhbb.analysis()->size() << " events" << std::endl;
@@ -64,7 +70,7 @@ int main(int argc, char ** argv)
          if ( ! mssmhbb.selectionJetPileupId()   )   continue;
          if ( ! mssmhbb.selectionNJets()         )   continue;
          
-         mssmhbb.fillJetHistograms("precut");
+         mssmhbb.fillJetHistograms("initial");
    
          
       //  1st and 2nd jet kinematic selection
@@ -104,7 +110,7 @@ int main(int argc, char ** argv)
             if ( ! mssmhbb.selectionNonBJet(3)   )   continue;
          }
          
-         mssmhbb.fillJetHistograms("nominal");
+         mssmhbb.fillJetHistograms("final");
       }
       else // ==================== MONTE CARLO =========================
       {
@@ -112,8 +118,10 @@ int main(int argc, char ** argv)
          if ( ! mssmhbb.selectionJetId()         )   continue;
          if ( ! mssmhbb.selectionJetPileupId()   )   continue;
          if ( ! mssmhbb.selectionNJets()         )   continue;
-         
-         mssmhbb.fillJetHistograms("precut");
+         mssmhbb.fillJetHistograms("initial");
+
+         mssmhbb.actionApplyJER();
+         mssmhbb.fillJetHistograms("after_jer");
          
       //  1st and 2nd jet kinematic selection
          if ( ! mssmhbb.selectionJet(1)          )   continue;
@@ -153,7 +161,15 @@ int main(int argc, char ** argv)
          if ( ! mssmhbb.onlineBJetMatching(1)    )   continue;
          if ( ! mssmhbb.onlineBJetMatching(2)    )   continue;
             
-         mssmhbb.fillJetHistograms("nominal");
+      // btag SF
+         mssmhbb.fillJetHistograms("before_btagsf");
+         mssmhbb.actionApplyBtagSF(1);
+         mssmhbb.actionApplyBtagSF(2);
+         mssmhbb.actionApplyBtagSF(3);
+         mssmhbb.fillJetHistograms("after_btagsf");
+         
+      // final histograms
+         mssmhbb.fillJetHistograms("final");
       }
       
    }
