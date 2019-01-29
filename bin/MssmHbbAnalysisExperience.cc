@@ -60,9 +60,14 @@ int main(int argc, char ** argv)
 // 
    for ( int i = 0 ; i < mssmhbb.nEvents() ; ++i )
    {
-      if ( i > 0 && i%100000==0 ) std::cout << i << "  events processed! " << std::endl;
       bool goodEvent = mssmhbb.event(i);
       if ( ! goodEvent ) continue;
+      // in 2017E data there was a change in the L1 trigger object name: need to run that period 2x, each with one object
+      if ( !mssmhbb.config()->isMC() )
+      {
+         if ( mssmhbb.analysis()->run() > 304508 ) { if ( mssmhbb.config()->triggerObjectsJets()[0] == "hltL1DoubleJet100er2p3dEtaMax1p6"                      ) continue; }
+         else                                      { if ( mssmhbb.config()->triggerObjectsJets()[0] == "hltL1DoubleJet100er2p3dEtaMax1p6Ior112er2p3dEtaMax1p6" ) continue; }
+      }
       
       if ( mssmhbb.config()->workflow() == 1 )  // ========== DATA and MC with data-like sequence, regression before selection ========
       {
@@ -70,6 +75,7 @@ int main(int argc, char ** argv)
       // trigger selection
          if ( ! mssmhbb.selectionHLT()           )   continue;
          if ( ! mssmhbb.selectionL1 ()           )   continue;  // to be used in case of "OR" of seeds
+      
             
       // jet identification selection
          if ( ! mssmhbb.selectionJetId()         )   continue;
@@ -231,6 +237,8 @@ int main(int argc, char ** argv)
          mssmhbb.fillJetHistograms("after_jer");
       }
       
+   // dije mass selection
+      if ( ! mssmhbb.selectionDiJetMass(1,2) ) continue;
    // final histograms
       mssmhbb.fillJetHistograms("final");
       
