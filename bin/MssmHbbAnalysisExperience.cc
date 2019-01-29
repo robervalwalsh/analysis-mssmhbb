@@ -64,7 +64,60 @@ int main(int argc, char ** argv)
       bool goodEvent = mssmhbb.event(i);
       if ( ! goodEvent ) continue;
       
-      if ( mssmhbb.config()->workflow() == 1 )  // ========== DATA and MC with data-like sequence ========
+      if ( mssmhbb.config()->workflow() == 1 )  // ========== DATA and MC with data-like sequence, regression before selection ========
+      {
+      
+      // trigger selection
+         if ( ! mssmhbb.selectionHLT()           )   continue;
+         if ( ! mssmhbb.selectionL1 ()           )   continue;  // to be used in case of "OR" of seeds
+            
+      // jet identification selection
+         if ( ! mssmhbb.selectionJetId()         )   continue;
+         if ( ! mssmhbb.selectionJetPileupId()   )   continue;
+         if ( ! mssmhbb.selectionNJets()         )   continue;
+         
+         mssmhbb.fillJetHistograms("initial");
+         
+      // b energy regression
+         mssmhbb.actionApplyBjetRegression();
+         mssmhbb.fillJetHistograms("after_bregression");
+         
+      //  1st and 2nd jet kinematic selection
+         if ( ! mssmhbb.selectionJet(1)          )   continue;
+         if ( ! mssmhbb.selectionJet(2)          )   continue;
+         
+      // jet delta eta 1,2 selection
+         if ( ! mssmhbb.selectionJetDeta(1,2)    )   continue;
+         
+      // jets 1, 2 matching to online jets
+         if ( ! mssmhbb.onlineJetMatching(1)     )   continue;
+         if ( ! mssmhbb.onlineJetMatching(2)     )   continue;
+         
+      // btag of two leading jets
+         if ( ! mssmhbb.selectionBJet(1)         )   continue;
+         if ( ! mssmhbb.selectionBJet(2)         )   continue;
+         
+      // jets 1,2 matching to online btag objects
+         if ( ! mssmhbb.onlineBJetMatching(1)    )   continue;
+         if ( ! mssmhbb.onlineBJetMatching(2)    )   continue;
+         
+      // 3rd jet kinematic selection
+         if ( ! mssmhbb.selectionJet(3)          )   continue;
+         
+         // delta R jet selection
+         if ( ! mssmhbb.selectionJetDr(1,2)      )   continue;
+         if ( ! mssmhbb.selectionJetDr(1,3)      )   continue;
+         if ( ! mssmhbb.selectionJetDr(2,3)      )   continue;
+         
+      // 3rd jet btag selection
+         if ( ! mssmhbb.selectionBJet(3)         )   continue;
+
+      // fill histograms after selection
+         mssmhbb.fillJetHistograms("after_selection");
+                  
+      }
+      
+      if ( mssmhbb.config()->workflow() == 2 )  // ========== DATA and MC with data-like sequence, regression at the end ========
       {
       
       // trigger selection
@@ -107,10 +160,17 @@ int main(int argc, char ** argv)
          
       // 3rd jet btag selection
          if ( ! mssmhbb.selectionBJet(3)         )   continue;
+         
+      // fill histograms after selection
+         mssmhbb.fillJetHistograms("after_selection");
+      
+      // b energy regression
+         mssmhbb.actionApplyBjetRegression();
+         mssmhbb.fillJetHistograms("after_bregression");
+         
       }
       
-      
-      if ( mssmhbb.config()->workflow() == 2 ) // ==================== MONTE CARLO inverted selection =========================
+      if ( mssmhbb.config()->workflow() == 10 ) // ==================== MONTE CARLO inverted selection =========================
       {
       // jet identification selection
          if ( ! mssmhbb.selectionJetId()         )   continue;
@@ -147,12 +207,16 @@ int main(int argc, char ** argv)
       // jets 1,2 matching to online btag objects
          if ( ! mssmhbb.onlineBJetMatching(1)    )   continue;
          if ( ! mssmhbb.onlineBJetMatching(2)    )   continue;
-          
+         
+      // fill histograms after selection
+         mssmhbb.fillJetHistograms("after_selection");
+      
+      // b energy regression
+         mssmhbb.actionApplyBjetRegression();
+         mssmhbb.fillJetHistograms("after_bregression");
       }
       
       // Common to all workflows
-      mssmhbb.fillJetHistograms("after_selection");
-      
       // MC-only corrections
       if ( mssmhbb.config()->isMC() )
       {
@@ -166,10 +230,6 @@ int main(int argc, char ** argv)
          mssmhbb.actionApplyJER();
          mssmhbb.fillJetHistograms("after_jer");
       }
-      
-   // b energy regression
-      mssmhbb.actionApplyBjetRegression();
-      mssmhbb.fillJetHistograms("after_bregression");
       
    // final histograms
       mssmhbb.fillJetHistograms("final");
