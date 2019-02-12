@@ -61,7 +61,9 @@ int main(int argc, char ** argv)
    for ( int i = 0 ; i < mssmhbb.nEvents() ; ++i )
    {
       bool goodEvent = mssmhbb.event(i);
+
       if ( ! goodEvent ) continue;
+
       // in 2017E data there was a change in the L1 trigger object name: need to run that period 2x, each with one object
       if ( !mssmhbb.config()->isMC() )
       {
@@ -221,6 +223,65 @@ int main(int argc, char ** argv)
          mssmhbb.actionApplyBjetRegression();
          mssmhbb.fillJetHistograms("after_bregression");
       }
+      
+      if ( mssmhbb.config()->workflow() == 20 )  // ========== DATA and MC semileptonic with data-like sequence, regression before selection ========
+      {
+      
+      // trigger selection
+         if ( ! mssmhbb.selectionHLT()           )   continue;
+         if ( ! mssmhbb.selectionL1 ()           )   continue;  // to be used in case of "OR" of seeds
+      
+      // muon identification selection
+         if ( ! mssmhbb.selectionMuonId()        )   continue;
+         if ( ! mssmhbb.selectionNMuons()        )   continue;
+         if ( ! mssmhbb.selectionMuons()         )   continue;
+         if ( ! mssmhbb.onlineMuonMatching()     )   continue; // FIXME there: should change the selectedMuons
+            
+      // jet identification selection
+         if ( ! mssmhbb.selectionJetId()         )   continue;
+         if ( ! mssmhbb.selectionJetPileupId()   )   continue;
+         if ( ! mssmhbb.selectionNJets()         )   continue;
+         
+         mssmhbb.fillJetHistograms("initial");
+         
+      // b energy regression
+         mssmhbb.actionApplyBjetRegression();
+         mssmhbb.fillJetHistograms("after_bregression");
+         
+      //  1st and 2nd jet kinematic selection
+         if ( ! mssmhbb.selectionJet(1)          )   continue;
+         if ( ! mssmhbb.selectionJet(2)          )   continue;
+         
+      // jet delta eta 1,2 selection
+         if ( ! mssmhbb.selectionJetDeta(1,2)    )   continue;
+         
+      // jets 1, 2 matching to online jets
+         if ( ! mssmhbb.onlineJetMatching(1)     )   continue;
+         if ( ! mssmhbb.onlineJetMatching(2)     )   continue;
+         
+      // btag of two leading jets
+         if ( ! mssmhbb.selectionBJet(1)         )   continue;
+         if ( ! mssmhbb.selectionBJet(2)         )   continue;
+         
+      // jets 1,2 matching to online btag objects
+         if ( ! mssmhbb.onlineBJetMatching(1)    )   continue;
+         if ( ! mssmhbb.onlineBJetMatching(2)    )   continue;
+         
+      // 3rd jet kinematic selection
+         if ( ! mssmhbb.selectionJet(3)          )   continue;
+         
+         // delta R jet selection
+         if ( ! mssmhbb.selectionJetDr(1,2)      )   continue;
+         if ( ! mssmhbb.selectionJetDr(1,3)      )   continue;
+         if ( ! mssmhbb.selectionJetDr(2,3)      )   continue;
+         
+      // 3rd jet btag selection
+         if ( ! mssmhbb.selectionBJet(3)         )   continue;
+
+      // fill histograms after selection
+         mssmhbb.fillJetHistograms("after_selection");
+                  
+      }      
       
       // Common to all workflows
       // MC-only corrections
