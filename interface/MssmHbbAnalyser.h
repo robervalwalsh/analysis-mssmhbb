@@ -52,6 +52,7 @@ namespace analysis {
          private:
                
          public:
+           virtual bool muonJet(const bool & swap = true);
 
       };
    }

@@ -79,3 +79,29 @@ MssmHbbAnalyser::~MssmHbbAnalyser()
 //    
 // }
 // 
+bool MssmHbbAnalyser::muonJet(const bool & swap)
+{
+   // jet with ranking 1 is the muon jet, swap with jet 2 in case it has the leading muon 
+   int r1 = 1;
+   int r2 = 2;
+   int j1 = r1-1;
+   int j2 = r2-1;
+   ++ cutflow_;
+   if ( std::string(h1_["cutflow"] -> GetXaxis()-> GetBinLabel(cutflow_+1)) == "" ) 
+   {
+      if ( swap ) h1_["cutflow"] -> GetXaxis()-> SetBinLabel(cutflow_+1,"MSSMHbb Semileptonic: Jet-muon association -> Muon-Jet index 1");
+      else        h1_["cutflow"] -> GetXaxis()-> SetBinLabel(cutflow_+1,"MSSMHbb Semileptonic: Jet-muon association");
+   }
+   
+   auto jet1 = selectedJets_[j1];
+   jet1 -> addMuon(selectedMuons_);
+   auto jet2 = selectedJets_[j2];
+   jet2 -> addMuon(selectedMuons_);
+   
+   if ( ! (jet1 -> muon() || jet2 -> muon()) ) return false;
+   if ( !  jet1 -> muon() && swap ) this->jetSwap(r1,r2);
+   
+   h1_["cutflow"] -> Fill(cutflow_,weight_);
+   return true;
+   
+}
