@@ -35,6 +35,8 @@ int main(int argc, char ** argv)
    
    MssmHbbAnalyser mssmhbb(argc,argv);
    
+   mssmhbb.mssmHbbTree();
+   
    mssmhbb.jetHistograms(3,"initial");
    mssmhbb.jetHistograms(3,"after_selection");
    if ( mssmhbb.config()->isMC() )
@@ -427,6 +429,8 @@ int main(int argc, char ** argv)
       if ( ! mssmhbb.selectionDiJetMass(1,2) ) continue;
    // final histograms
       mssmhbb.fillJetHistograms("final");
+      
+      mssmhbb.fillMssmHbbTree();
       
    }
    
