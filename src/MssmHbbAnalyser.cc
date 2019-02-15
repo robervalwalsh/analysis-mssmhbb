@@ -16,6 +16,7 @@
 // 
 // user include files
 #include "Analysis/MssmHbb/interface/MssmHbbAnalyser.h"
+#include "Analysis/Tools/interface/Composite.h"
 
 
 //
@@ -37,6 +38,8 @@ MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : BaseAnalyser(argc,arg
 {
 //   histograms("cutflow");
 //   histograms("jet",config_->nJetsMin());
+   do_tree_ = false;
+   mbb_ = -1.;
    
 }
 
@@ -44,6 +47,8 @@ MssmHbbAnalyser::~MssmHbbAnalyser()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+   
+   if ( do_tree_ ) mssmhbb_tree_ -> Write();
 }
 
 
@@ -104,4 +109,30 @@ bool MssmHbbAnalyser::muonJet(const bool & swap)
    h1_["cutflow"] -> Fill(cutflow_,weight_);
    return true;
    
+}
+
+void MssmHbbAnalyser::fillMssmHbbTree()
+{
+   if ( ! do_tree_ ) return;
+   ++ cutflow_;
+   if ( std::string(h1_["cutflow"] -> GetXaxis()-> GetBinLabel(cutflow_+1)) == "" ) 
+      h1_["cutflow"] -> GetXaxis()-> SetBinLabel(cutflow_+1,"Fill MssmHbb tree");
+   
+   Composite<Jet,Jet> c_12(*(selectedJets_[0]),*(selectedJets_[1]));
+   if ( config_->isMC() || !config_->signalRegion() ) mbb_ = c_12.m();
+   
+   mbbw_ = weight_;
+   
+   mssmhbb_tree_ -> Fill();
+   h1_["cutflow"] -> Fill(cutflow_,weight_);
+
+}
+
+void MssmHbbAnalyser::mssmHbbTree()
+{
+   do_tree_ = true;
+   this->output()->cd();
+   mssmhbb_tree_ = std::make_shared<TTree>("MssmHbb","TTree with mbb and weight for FitModel");
+   mssmhbb_tree_ -> Branch("mbb",&mbb_,"mbb/D");
+   mssmhbb_tree_ -> Branch("weight",&mbbw_,"weight/D");
 }
