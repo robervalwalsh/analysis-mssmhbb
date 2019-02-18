@@ -59,6 +59,7 @@ namespace analysis {
            virtual bool muonJet(const bool & swap = true);
            void fillMssmHbbTree();
            void mssmHbbTree();
+           void fillMssmHbbHistograms();
 
       };
    }

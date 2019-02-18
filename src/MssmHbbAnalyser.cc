@@ -40,6 +40,7 @@ MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : BaseAnalyser(argc,arg
 //   histograms("jet",config_->nJetsMin());
    do_tree_ = false;
    mbb_ = -1.;
+   h1_["mssmhbb_mbb"] = std::make_shared<TH1F>("mbb","MSSM Hbb mbb", 30000,0,3000); 
    
 }
 
@@ -136,3 +137,20 @@ void MssmHbbAnalyser::mssmHbbTree()
    mssmhbb_tree_ -> Branch("mbb",&mbb_,"mbb/D");
    mssmhbb_tree_ -> Branch("weight",&mbbw_,"weight/D");
 }
+
+void MssmHbbAnalyser::fillMssmHbbHistograms()
+{
+   ++ cutflow_;
+   if ( std::string(h1_["cutflow"] -> GetXaxis()-> GetBinLabel(cutflow_+1)) == "" ) 
+      h1_["cutflow"] -> GetXaxis()-> SetBinLabel(cutflow_+1,"Fill MssmHbb Histograms");
+   
+   Composite<Jet,Jet> c_12(*(selectedJets_[0]),*(selectedJets_[1]));
+   float mbb = 0.;
+   if ( config_->isMC() || !config_->signalRegion() ) mbb = c_12.m();
+   
+   h1_["mssmhbb_mbb"] -> Fill(mbb,weight_);
+   h1_["cutflow"] -> Fill(cutflow_,weight_);
+
+}
+
+
