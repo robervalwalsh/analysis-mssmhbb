@@ -431,6 +431,7 @@ int main(int argc, char ** argv)
       mssmhbb.fillJetHistograms("final");
       
       mssmhbb.fillMssmHbbTree();
+      mssmhbb.fillMssmHbbHistograms();
       
    }
    
