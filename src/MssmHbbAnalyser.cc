@@ -16,6 +16,7 @@
 // 
 // user include files
 #include "Analysis/MssmHbb/interface/MssmHbbAnalyser.h"
+#include "Analysis/Tools/interface/Composite.h"
 
 
 //
@@ -33,10 +34,13 @@ MssmHbbAnalyser::MssmHbbAnalyser()
 {
 }
 
-MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : Analyser(argc,argv)
+MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : BaseAnalyser(argc,argv), Analyser(argc,argv)
 {
-   histograms("cutflow");
-   histograms("jet",config_->nJetsMin());
+//   histograms("cutflow");
+//   histograms("jet",config_->nJetsMin());
+   do_tree_ = false;
+   mbb_ = -1.;
+   h1_["mssmhbb_mbb"] = std::make_shared<TH1F>("mbb","MSSM Hbb mbb", 30000,0,3000); 
    
 }
 
@@ -44,6 +48,8 @@ MssmHbbAnalyser::~MssmHbbAnalyser()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+   
+   if ( do_tree_ ) mssmhbb_tree_ -> Write();
 }
 
 
@@ -53,29 +59,98 @@ MssmHbbAnalyser::~MssmHbbAnalyser()
 // ------------ method called for each event  ------------
 
 
-bool MssmHbbAnalyser::event(const int & i)
+// bool MssmHbbAnalyser::event(const int & i)
+// {
+//    // parent function checks only json and run range validity
+//    if ( ! Analyser::event(i) ) return false;
+//    
+//    return true;
+// }
+// 
+// void MssmHbbAnalyser::histograms(const std::string & obj, const int & n)
+// {
+// //   Analyser::histograms(obj,n);
+//    
+// }
+// 
+// void MssmHbbAnalyser::end()
+// {
+//    Analyser::end();
+//    
+// }
+// 
+// void MssmHbbAnalyser::fillJetHistograms()
+// {
+//    Analyser::fillJetHistograms();
+//    
+// }
+// 
+bool MssmHbbAnalyser::muonJet(const bool & swap)
 {
-   // parent function checks only json and run range validity
-   if ( ! Analyser::event(i) ) return false;
+   // jet with ranking 1 is the muon jet, swap with jet 2 in case it has the leading muon 
+   int r1 = 1;
+   int r2 = 2;
+   int j1 = r1-1;
+   int j2 = r2-1;
+   ++ cutflow_;
+   if ( std::string(h1_["cutflow"] -> GetXaxis()-> GetBinLabel(cutflow_+1)) == "" ) 
+   {
+      if ( swap ) h1_["cutflow"] -> GetXaxis()-> SetBinLabel(cutflow_+1,"MSSMHbb Semileptonic: Jet-muon association -> Muon-Jet index 1");
+      else        h1_["cutflow"] -> GetXaxis()-> SetBinLabel(cutflow_+1,"MSSMHbb Semileptonic: Jet-muon association");
+   }
    
+   auto jet1 = selectedJets_[j1];
+   jet1 -> addMuon(selectedMuons_);
+   auto jet2 = selectedJets_[j2];
+   jet2 -> addMuon(selectedMuons_);
+   
+   if ( ! (jet1 -> muon() || jet2 -> muon()) ) return false;
+   if ( !  jet1 -> muon() && swap ) this->jetSwap(r1,r2);
+   
+   h1_["cutflow"] -> Fill(cutflow_,weight_);
    return true;
-}
-
-void MssmHbbAnalyser::histograms(const std::string & obj, const int & n)
-{
-   Analyser::histograms(obj,n);
    
 }
 
-void MssmHbbAnalyser::end()
+void MssmHbbAnalyser::fillMssmHbbTree()
 {
-   Analyser::end();
+   if ( ! do_tree_ ) return;
+   ++ cutflow_;
+   if ( std::string(h1_["cutflow"] -> GetXaxis()-> GetBinLabel(cutflow_+1)) == "" ) 
+      h1_["cutflow"] -> GetXaxis()-> SetBinLabel(cutflow_+1,"Fill MssmHbb tree");
    
+   Composite<Jet,Jet> c_12(*(selectedJets_[0]),*(selectedJets_[1]));
+   if ( config_->isMC() || !config_->signalRegion() ) mbb_ = c_12.m();
+   
+   mbbw_ = weight_;
+   
+   mssmhbb_tree_ -> Fill();
+   h1_["cutflow"] -> Fill(cutflow_,weight_);
+
 }
 
-void MssmHbbAnalyser::fillJetHistograms()
+void MssmHbbAnalyser::mssmHbbTree()
 {
-   Analyser::fillJetHistograms();
-   
+   do_tree_ = true;
+   this->output()->cd();
+   mssmhbb_tree_ = std::make_shared<TTree>("MssmHbb","TTree with mbb and weight for FitModel");
+   mssmhbb_tree_ -> Branch("mbb",&mbb_,"mbb/D");
+   mssmhbb_tree_ -> Branch("weight",&mbbw_,"weight/D");
 }
+
+void MssmHbbAnalyser::fillMssmHbbHistograms()
+{
+   ++ cutflow_;
+   if ( std::string(h1_["cutflow"] -> GetXaxis()-> GetBinLabel(cutflow_+1)) == "" ) 
+      h1_["cutflow"] -> GetXaxis()-> SetBinLabel(cutflow_+1,"Fill MssmHbb Histograms");
+   
+   Composite<Jet,Jet> c_12(*(selectedJets_[0]),*(selectedJets_[1]));
+   float mbb = 0.;
+   if ( config_->isMC() || !config_->signalRegion() ) mbb = c_12.m();
+   
+   h1_["mssmhbb_mbb"] -> Fill(mbb,weight_);
+   h1_["cutflow"] -> Fill(cutflow_,weight_);
+
+}
+
 
