@@ -66,12 +66,12 @@ int main(int argc, char ** argv)
 
       if ( ! goodEvent ) continue;
 
-      // in 2017E data there was a change in the L1 trigger object name: need to run that period 2x, each with one object
-      if ( !mssmhbb.config()->isMC() )
-      {
-         if ( mssmhbb.analysis()->run() > 304508 ) { if ( mssmhbb.config()->triggerObjectsJets()[0] == "hltL1DoubleJet100er2p3dEtaMax1p6"                      ) continue; }
-         else                                      { if ( mssmhbb.config()->triggerObjectsJets()[0] == "hltL1DoubleJet100er2p3dEtaMax1p6Ior112er2p3dEtaMax1p6" ) continue; }
-      }
+//       // in 2017E data there was a change in the L1 trigger object name: need to run that period 2x, each with one object
+//       if ( !mssmhbb.config()->isMC() )
+//       {
+//          if ( mssmhbb.analysis()->run() > 304508 ) { if ( mssmhbb.config()->triggerObjectsJets()[0] == "hltL1DoubleJet100er2p3dEtaMax1p6"                      ) continue; }
+//          else                                      { if ( mssmhbb.config()->triggerObjectsJets()[0] == "hltL1DoubleJet100er2p3dEtaMax1p6Ior112er2p3dEtaMax1p6" ) continue; }
+//       }
       
       if ( mssmhbb.config()->workflow() == 1 )  // ========== DATA and MC with data-like sequence, regression before selection ========
       {
