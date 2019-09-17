@@ -45,7 +45,9 @@ int main(int argc, char ** argv)
       
    // BTAG: two leading jets
       if ( ! mssmhbb.selectionBJet(1)          )   continue;
+      mssmhbb.actionApplyBtagSF(1);
       if ( ! mssmhbb.selectionBJet(2)          )   continue;
+      mssmhbb.actionApplyBtagSF(2);
       // jets 1,2 matching to online btag objects
       if ( ! mssmhbb.onlineBJetMatching(1)     )   continue;
       if ( ! mssmhbb.onlineBJetMatching(2)     )   continue;
@@ -62,6 +64,7 @@ int main(int argc, char ** argv)
          
       // 3rd jet btag selection
       if ( ! mssmhbb.selectionBJet(3)          )   continue;
+      mssmhbb.actionApplyBtagSF(3);
 
        mssmhbb.fillJetHistograms("selection03");               // histograms : jets fill
    // HISTOGRAMS
