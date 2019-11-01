@@ -37,7 +37,7 @@ int main(int argc, char ** argv)
       // the lines below will only be executed if rank <= nJetsMin
       if ( ! mssmhbb.selectionJet(1)           )   continue;  // selection  : jet1 pt and eta 
       if ( ! mssmhbb.selectionJet(2)           )   continue;  // selection  : jet2 pt and eta 
-      if ( ! mssmhbb.selectionJetDphi(1,2)     )   continue;  // selection  : delta_phi_jets (1,2) [or  MIN(neg): mssmhbb.selectionJetDphi(1,2,-2.0) / MAX(pos): mssmhbb.selectionJetDphi(1,2,+2.0)]
+      if ( ! mssmhbb.selectionJetDeta(1,2)     )   continue;  // selection  : delta_phi_jets (1,2) [or  MIN(neg): mssmhbb.selectionJetDeta(1,2,-2.0) / MAX(pos): mssmhbb.selectionJetDeta(1,2,+2.0)]
       // jets 1, 2 matching to online jets
       if ( ! mssmhbb.onlineJetMatching(1)      )   continue;
       if ( ! mssmhbb.onlineJetMatching(2)      )   continue;
