@@ -18,7 +18,11 @@ int main(int argc, char ** argv)
    // you can alway retrieve the old analysis object
    auto analysis = mssmhbb.analysis();
    
-   // the configuration is different from the old case
+   // the configuration is different from the old case, the parameters from the config are dealt 
+   // within the methods
+   // see documentation (in progress) at 
+   // http://www.desy.de/~walsh/doxygen/analysis-tools/v3.3/classanalysis_1_1tools_1_1Config.html
+   // http://www.desy.de/~walsh/doxygen/analysis-tools/v3.3/Config_8cc_source.html
    auto config = mssmhbb.config();
    
    for ( int i = 0 ; i < mssmhbb.nEvents() ; ++i )
