@@ -87,7 +87,11 @@ MssmHbbAnalyser::~MssmHbbAnalyser()
 // 
 bool MssmHbbAnalyser::muonJet(const bool & swap)
 {
-   // jet with ranking 1 is the muon jet, swap with jet 2 in case it has the leading muon 
+   // jet 1 is the muon jet, swap with jet 2 in case jet1 does not have a muon 
+   // Muon jet association, a muon can be in either of the two leading jets.
+   // If argument is false, the jet label follows the jet ranking, regardless of where the muon is
+   // If argument is true(default), the jet label 1 refers to the muon-jet, this way one can apply 
+   // muon SF to jet 1 only
    int r1 = 1;
    int r2 = 2;
    int j1 = r1-1;
