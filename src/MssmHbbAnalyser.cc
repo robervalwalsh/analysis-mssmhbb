@@ -6,7 +6,7 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Roberval Walsh Bastos Rangel
+// Original Author:  Roberval Walsh
 //         Created:  Mon, 20 Oct 2014 14:24:08 GMT
 //
 //
@@ -57,8 +57,6 @@ MssmHbbAnalyser::~MssmHbbAnalyser()
 // member functions
 //
 // ------------ method called for each event  ------------
-
-
 // bool MssmHbbAnalyser::event(const int & i)
 // {
 //    // parent function checks only json and run range validity
@@ -85,6 +83,8 @@ MssmHbbAnalyser::~MssmHbbAnalyser()
 //    
 // }
 // 
+
+
 bool MssmHbbAnalyser::muonJet(const bool & swap)
 {
    // jet 1 is the muon jet, swap with jet 2 in case jet1 does not have a muon 
