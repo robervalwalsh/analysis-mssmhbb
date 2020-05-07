@@ -8,6 +8,7 @@
 * [Running the analysis](#Running-the-analysis)
   * [Main macro](#Main-macro)
   * [Configuration file](#Configuration-file)
+* [Workflow](#Workflow)
 * [MssmHbbAnalyser class](#MssmHbbAnalyser-class)
 
 ## Installation
@@ -76,6 +77,86 @@ Compared to the Analysis/Tools [example](https://github.com/desy-cms/analysis-to
 
 The structure of the configuration file is defined by the `Analysis/Tools` package. More details can be found in the `Analysis/Tools` [README.md](https://github.com/desy-cms/analysis-tools/blob/develop/README.md#detailed-description).
 
+
+## Workflow
+
+The workflow of the main macro for DATA is
+
+```
++----------------------------------------------------------------------------------------------+
+| Workflow DATA                                                                                |
++----------------------------------------------------------------------------------------------+
+|  0 - Total events read                                                                       |
+|  1 - Certified data: Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt            |
+|  2 - Using Jet collection: MssmHbb/Events/updatedPatJets                                     |
+|  3 - Using Muon collection: MssmHbb/Events/slimmedMuons                                      |
+|  4 - HLT_Mu12_DoublePFJets40MaxDeta1p6_DoubleCaloBTagCSV_p33_v                               |
+|  5 - L1_Mu12er2p3_Jet40er2p3_dR_Max0p4_DoubleJet40er2p3_dEta_Max1p6                          |
+|  6 - MuonId: tight                                                                           |
+|  7 - JetId: tight                                                                            |
+|  8 - JetPileupId: loose                                                                      |
+|  9 - b jet energy regression                                                                 |
+| 10 - NMuons >= 1                                                                             |
+| 11 - Muons selected: pt >  13.0 GeV and |eta| < 2.2                                          |
+| 12 - Muons selected: Online muon matching (L1 and L3)                                        |
+| 13 - NJets >= 3                                                                              |
+| 14 - Jet 1: pt >  60.0 GeV and |eta| < 2.2                                                   |
+| 15 - Jet 1: online jet match                                                                 |
+| 16 - Jet 2: pt >  50.0 GeV and |eta| < 2.2                                                   |
+| 17 - Jet 2: online jet match                                                                 |
+| 18 - Jet 3: pt >  30.0 GeV and |eta| < 2.2                                                   |
+| 19 - MSSMHbb Semileptonic: Jet-muon association                                              |
+| 20 - Jet 1: deepflavour btag > 0.3033 (medium)                                               |
+| 21 - Jet 1: online b jet match                                                               |
+| 22 - Jet 2: deepflavour btag > 0.3033 (medium)                                               |
+| 23 - Jet 2: online b jet match                                                               |
+| 24 - Jet 3: deepflavour btag < 0.0521 (loose) [reverse btag]                                 |
+| 25 - *** Filling jets histograms - final_selection                                           |
+| 26 - Fill MssmHbb Histograms                                                                 |
+| 27 - Fill MssmHbb tree                                                                       |
++----------------------------------------------------------------------------------------------+
+
+```
+
+where as for the Monte Carlo it is
+
+```
++----------------------------------------------------------------------------------------------+
+| Workflow Monte Carlo                                                                         |
++----------------------------------------------------------------------------------------------+
+|  0 - Total events read                                                                       |
+|  1 - Generated weighted events (sign of weights)                                             |
+|  2 - Using GenParticles collection: MssmHbb/Events/prunedGenParticles                        |
+|  3 - Using GenJets collection: MssmHbb/Events/slimmedGenJets                                 |
+|  4 - Using Jet collection: MssmHbb/Events/updatedPatJets                                     |
+|  5 - Using Muon collection: MssmHbb/Events/slimmedMuons                                      |
+|  6 - Pileup weight (PileupWeight_Run2017_Mix_2017.root)                                      |
+|  7 - HLT_Mu12_DoublePFJets40MaxDeta1p6_DoubleCaloBTagCSV_p33_v                               |
+|  8 - L1_Mu12er2p3_Jet40er2p3_dR_Max0p4_DoubleJet40er2p3_dEta_Max1p6                          |
+|  9 - MuonId: tight                                                                           |
+| 10 - JetId: tight                                                                            |
+| 11 - JetPileupId: loose                                                                      |
+| 12 - b jet energy regression                                                                 |
+| 13 - JER smearing (Fall17_V3_MC_PtResolution_AK4PFchs.txt,Fall17_V3_MC_SF_AK4PFchs.txt)      |
+| 14 - NMuons >= 1                                                                             |
+| 15 - Muons selected: pt >  13.0 GeV and |eta| < 2.2                                          |
+| 16 - Muons selected: Online muon matching (L1 and L3)                                        |
+| 17 - NJets >= 3                                                                              |
+| 18 - Jet 1: pt >  60.0 GeV and |eta| < 2.2                                                   |
+| 19 - Jet 1: online jet match                                                                 |
+| 20 - Jet 2: pt >  50.0 GeV and |eta| < 2.2                                                   |
+| 21 - Jet 2: online jet match                                                                 |
+| 22 - Jet 3: pt >  30.0 GeV and |eta| < 2.2                                                   |
+| 23 - MSSMHbb Semileptonic: Jet-muon association                                              |
+| 24 - Jet 1: deepflavour btag > 0.3033 (medium)                                               |
+| 25 - Jet 1: btag SF applied (deepflavour medium WP)                                          |
+| 26 - Jet 1: online b jet match                                                               |
+| 27 - Jet 2: deepflavour btag > 0.3033 (medium)                                               |
+| 28 - Jet 2: btag SF applied (deepflavour medium WP)                                          |
+| 29 - Jet 2: online b jet match                                                               |
++----------------------------------------------------------------------------------------------+
+
+```
 
 ## MssmHbbAnalyser class
 
