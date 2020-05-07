@@ -42,10 +42,18 @@ namespace analysis {
             MssmHbbAnalyser(int argc, char ** argv);
            ~MssmHbbAnalyser();
            
-//             virtual bool event(const int &);
-//             virtual void histograms(const std::string &, const int & n = 1);
-//             virtual void fillJetHistograms();
-//             virtual void end();        
+            virtual bool event(const int &i);
+            bool preselection();
+            virtual bool muonJet(const bool & swap = false);
+            void fillMssmHbbTree();
+            void mssmHbbTree();
+            void fillMssmHbbHistograms();
+            bool jetCorrections();
+            bool triggerSelection();
+            bool jetSelection();
+            bool muonSelection();
+            bool btagSelection();
+            bool endSelection();
             // ----------member data ---------------------------
          protected:
             bool do_tree_;
@@ -55,11 +63,6 @@ namespace analysis {
                
          private:
                
-         public:
-           virtual bool muonJet(const bool & swap = true);
-           void fillMssmHbbTree();
-           void mssmHbbTree();
-           void fillMssmHbbHistograms();
 
       };
    }
