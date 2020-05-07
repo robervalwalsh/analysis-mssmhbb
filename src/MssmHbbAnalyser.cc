@@ -6,7 +6,7 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Roberval Walsh Bastos Rangel
+// Original Author:  Roberval Walsh
 //         Created:  Mon, 20 Oct 2014 14:24:08 GMT
 //
 //
@@ -38,10 +38,11 @@ MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : BaseAnalyser(argc,arg
 {
 //   histograms("cutflow");
 //   histograms("jet",config_->nJetsMin());
-   do_tree_ = false;
+   do_tree_ = config_->doTree();
+   if ( do_tree_ ) this -> mssmHbbTree();
    mbb_ = -1.;
-   h1_["mssmhbb_mbb"] = std::make_shared<TH1F>("mbb","MSSM Hbb mbb", 30000,0,3000); 
-   
+   this->jetHistograms(config_->nJetsMin(),"final_selection");
+   h1_["mssmhbb_mbb"] = std::make_shared<TH1F>("mbb","MSSM Hbb mbb", 30000,0,3000);   
 }
 
 MssmHbbAnalyser::~MssmHbbAnalyser()
@@ -57,41 +58,99 @@ MssmHbbAnalyser::~MssmHbbAnalyser()
 // member functions
 //
 // ------------ method called for each event  ------------
+bool MssmHbbAnalyser::event(const int & i)
+{
+   // parent function checks only json and run range validity
+   if ( ! Analyser::event(i) ) return false;
+   
+// PILEUP RE-WEIGHT
+   this->actionApplyPileupWeight(); 
+   
+   return true;
+}
+bool MssmHbbAnalyser::preselection()
+{
+// IDENTIFICATIONS
+      if ( ! this->selectionMuonId()         )   return false;
+      if ( ! this->selectionJetId()          )   return false;
+      if ( ! this->selectionJetPileupId()    )   return false;
+      return true;
+      
+}
+bool MssmHbbAnalyser::jetCorrections()
+{
+// CORRECTIONS
+   // b energy regression
+      if ( this->config()->bRegression() )  this->actionApplyBjetRegression();
+   // Jet energy resolution smearing
+      this->actionApplyJER();
+      
+      return true;
+      
+}
+bool MssmHbbAnalyser::triggerSelection()
+{
+// TRIGGER selection
+      if ( ! this->selectionHLT()           )   return false;      
+      if ( ! this->selectionL1 ()           )   return false;  // to be used mainly in case of "OR" of seeds
+      return true;
+      
+}
+bool MssmHbbAnalyser::jetSelection()
+{
+      if ( ! this->selectionNJets()         )   return false;
+      for ( int i = 1; i <= config_->nJetsMin(); ++i )
+      {
+         // kinematics selection
+         if ( ! this->selectionJet(i)          )   return false;
+         if ( i <= 2  && (! this->onlineJetMatching(i))     )   return false;
+         // delta R selection
+         for ( int j = i+1; j <= config_->nJetsMin(); ++j )
+               if ( ! this->selectionJetDr(i,j)      )   return false;
+      }
+      // delta eta jet selection
+      if ( ! this->selectionJetDeta(1,2)    )   return false;
+      
+      return true;
+      
+}
+bool MssmHbbAnalyser::btagSelection()
+{
+      for ( int i = 1; i <= config_->nBJetsMin(); ++i )
+      {
+         if ( ! this->selectionBJet(i)      )   return false;
+         this->actionApplyBtagSF(i);
+         if ( i<= 2 && ! this->onlineBJetMatching(i)    )   return false;
+      }
+      
+      return true;
+      
+}
+bool MssmHbbAnalyser::muonSelection()
+{
+      if ( ! this->selectionNMuons()        )   return false;
+      if ( ! this->selectionMuons()         )   return false;
+      if ( ! this->onlineMuonMatching()     )   return false;
+      return true;
+      
+}
+bool MssmHbbAnalyser::endSelection()
+{
+      this->fillJetHistograms("final_selection");
+      this->fillMssmHbbHistograms();
+      this->fillMssmHbbTree();
+      return true;
+      
+}
 
-
-// bool MssmHbbAnalyser::event(const int & i)
-// {
-//    // parent function checks only json and run range validity
-//    if ( ! Analyser::event(i) ) return false;
-//    
-//    return true;
-// }
-// 
-// void MssmHbbAnalyser::histograms(const std::string & obj, const int & n)
-// {
-// //   Analyser::histograms(obj,n);
-//    
-// }
-// 
-// void MssmHbbAnalyser::end()
-// {
-//    Analyser::end();
-//    
-// }
-// 
-// void MssmHbbAnalyser::fillJetHistograms()
-// {
-//    Analyser::fillJetHistograms();
-//    
-// }
-// 
 bool MssmHbbAnalyser::muonJet(const bool & swap)
 {
    // jet 1 is the muon jet, swap with jet 2 in case jet1 does not have a muon 
    // Muon jet association, a muon can be in either of the two leading jets.
-   // If argument is false, the jet label follows the jet ranking, regardless of where the muon is
-   // If argument is true(default), the jet label 1 refers to the muon-jet, this way one can apply 
-   // muon SF to jet 1 only
+   // If argument is false(default, the jet label follows the jet ranking, regardless of where the muon is
+   // If argument is true, the jet label 1 refers to the muon-jet: *** the order of the workflow may matter!!! ***
+   if ( ! muonsanalysis_ || ! jetsanalysis_ ) return true;  // will skip this selection
+   
    int r1 = 1;
    int r2 = 2;
    int j1 = r1-1;
@@ -102,6 +161,8 @@ bool MssmHbbAnalyser::muonJet(const bool & swap)
       if ( swap ) h1_["cutflow"] -> GetXaxis()-> SetBinLabel(cutflow_+1,"MSSMHbb Semileptonic: Jet-muon association -> Muon-Jet index 1");
       else        h1_["cutflow"] -> GetXaxis()-> SetBinLabel(cutflow_+1,"MSSMHbb Semileptonic: Jet-muon association");
    }
+   
+   if ( selectedJets_.size() < 2 ||  selectedMuons_.size() < 1 ) return false;
    
    auto jet1 = selectedJets_[j1];
    jet1 -> addMuon(selectedMuons_);
@@ -135,9 +196,9 @@ void MssmHbbAnalyser::fillMssmHbbTree()
 
 void MssmHbbAnalyser::mssmHbbTree()
 {
-   do_tree_ = true;
+//   do_tree_ = true;
    this->output()->cd();
-   mssmhbb_tree_ = std::make_shared<TTree>("MssmHbb","TTree with mbb and weight for FitModel");
+   mssmhbb_tree_ = std::make_shared<TTree>("mssmhbb","TTree with mbb and weight for FitModel");
    mssmhbb_tree_ -> Branch("mbb",&mbb_,"mbb/D");
    mssmhbb_tree_ -> Branch("weight",&mbbw_,"weight/D");
 }
