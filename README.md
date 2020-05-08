@@ -41,6 +41,8 @@ A macro with full analysis workflow can be found in [Analysis/MssmHbb/bin/MssmHb
 
 This macro perform the standard semileptonic analysis selection:
 
+:warning: Unfortunately Github markdown does not render Latex equations :angry:
+
 * Trigger
   * HLT: HLT_Mu12_DoublePFJets40MaxDeta1p6_DoubleCaloBTagCSV_p33_v
   * L1: L1_Mu12er2p3_Jet40er2p3_dR_Max0p4_DoubleJet40er2p3_dEta_Max1p6)
@@ -49,15 +51,15 @@ This macro perform the standard semileptonic analysis selection:
   * b-jet energy regression applied
   * Jet ID: tight
   * Jet PU ID: loose
-  * Jet 1: $p_{t} > 60$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP; matched to trigger objects
-  * Jet 2: $p_{t} > 50$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP; matched to trigger objects
-  * Jet 3: $p_{t} > 30$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP
+  * Jet 1: $p_{T} > 60$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP; matched to trigger objects
+  * Jet 2: $p_{T} > 50$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP; matched to trigger objects
+  * Jet 3: $p_{T} > 30$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP
     * Reverse btag Loose WP in control region
   * $\Delta\eta(jet_1,jet_2) < 1.5$
   * $\Delta R (jet_{i},jet_{j}) > 1$ ; $i,j=1,2,3$ ; $i\neq j$
 * Muon
   * Muon ID: tight
-  * Muon: $p_{t} > 13$ GeV; $|\eta| < 2.2$; matched to trigger objects
+  * Muon: $p_{T} > 13$ GeV; $|\eta| < 2.2$; matched to trigger objects
 * Muon-Jet
   * At least one selected muon must be within one of the two leading jet: $\Delta R(\mu,jet)<0.4$
   
