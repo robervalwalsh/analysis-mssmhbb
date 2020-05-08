@@ -52,6 +52,7 @@ This macro perform the standard semileptonic analysis selection:
   * Jet 1: $p_{t} > 60$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP; matched to trigger objects
   * Jet 2: $p_{t} > 50$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP; matched to trigger objects
   * Jet 3: $p_{t} > 30$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP
+    * Reverse btag Loose WP in control region
   * $\Delta\eta(jet_1,jet_2) < 1.5$
   * $\Delta R (jet_{i},jet_{j}) > 1$ ; $i,j=1,2,3$ ; $i\neq j$
 * Muon
