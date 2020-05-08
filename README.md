@@ -6,6 +6,8 @@
 
 * [Installation](#Installation)
 * [Running the analysis](#Running-the-analysis)
+  * [Semileptonic channel](#Semileptonic-channel)
+  * [All-hadronic channel](#All-hadronic-channel) (to do)
   * [Main macro](#Main-macro)
   * [Configuration file](#Configuration-file)
   * [Workflow](#Workflow)
@@ -198,7 +200,7 @@ For a selection, in which:
   * $\Delta R (jet_{i},jet_{j}) > 1$ ; $i,j=1,2,3$ ; $i\neq j$
   
 
-the configuration reads (:warning: notice that the order matters!):
+the configuration reads
 
 ```ini
 [Jets]
@@ -210,6 +212,8 @@ etaMax = 2.2
 etaMax = 2.2
 ...
 ```
+:warning: Notice that the order matters! First `ptMin` entry is for the leading jet, second `ptMin` is for the second leading jet, ...
+
 ```ini
 [Trigger.Objects]
 Jets.L1   = hltL1Mu12er2p3Jet40er2p3dRMax0p4DoubleJet40er2p3dEtaMax1p6_l1jet
@@ -234,7 +238,10 @@ wp = medium
 wp = medium
 algorithm = deepflavour
 ```
-where `wp` if the working point of each required b-tagged jet (:warning: notice that the order matters!)
+where `wp` if the working point of each required b-tagged jet.
+
+:warning: Notice that the order matters! First `wp` entry is for the leading jet, second `wp` is for the second leading jet, ...
+
 
 The values of the WP's must be given in the configuration file:
 ```ini
