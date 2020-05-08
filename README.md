@@ -8,7 +8,7 @@
 * [Running the analysis](#Running-the-analysis)
   * [Main macro](#Main-macro)
   * [Configuration file](#Configuration-file)
-* [Workflow](#Workflow)
+  * [Workflow](#Workflow)
 * [MssmHbbAnalyser class](#MssmHbbAnalyser-class)
 
 ## Installation
@@ -73,12 +73,160 @@ int main(int argc, char ** argv)
 
 Compared to the Analysis/Tools [example](https://github.com/desy-cms/analysis-tools/blob/develop/README.md#example) this is much simplified, for the individual selections were grouped and included in methods of the `MssmHbbAnalyser` class. However some flexibility to re-order the workflow is still allowed. Of course, the user can also replace any of the `if` statements above and enable more detailed steps of the selections, or add other steps to the workflow.
 
+#### Event selection detailed description
+
+1. `MSSMHBBAnalyser::event(i)`
+
+When calling the method `event(i)`, the entry `i` is read from the `TTree` of the ntuple. If running on data, the event is checked whether it is valid from a list of certified data given by the provided JSON file.
+
+When running on Monte Carlo, generated event weights are applied. Pileup re-weighing is also applied if re-weigh file is provided in the configuration file in the `[Corrections]` section, e.g.:
+
+```ini
+[Corrections]
+Pileup.reweight  = calibrations/2017/pileup/PileupWeight_Run2017_Mix_2017.root
+```
+
+
+2. `MSSMHBBAnalyser::triggerSelection()`
+
+It returns `true` if the event passes both the HLT and L1 triggers, which are given in the configuration file section and whose results are in the `TriggerResults` collection, thus
+
+```ini
+[Trigger]
+results   = TriggerResults
+hltPath   = HLT_Mu12_DoublePFJets40MaxDeta1p6_DoubleCaloBTagCSV_p33_v 
+l1Seed    = L1_Mu12er2p3_Jet40er2p3_dR_Max0p4_DoubleJet40er2p3_dEta_Max1p6
+```
+
+3. `MSSMHBBAnalyser::preselection()`
+
+This method will prepare a vector of muons and a vector of jets that pass the identification criteria, namely muon id for muons, and jet id and jet pileup id for jets. It will return `false` if any of those vectors has zero entries.
+
+The identification criteria is defined in the configuration file as, for example
+
+```ini
+[Jets]
+id = tight
+puId = loose
+```
+```ini
+[Muons]
+id = tight
+```
+
+4. `MSSMHBBAnalyser::jetCorrections()`
+
+This method will apply b-jet energy regression corrections to all the jets in the event, if requested in the configuration file:
+```ini
+[Corrections]
+Jets.bRegression = true
+```
+It will also smear the jet $p_{t}$ according to the jet energy resolution scale factors, if the relevant calibration files are provided in the configuration, e.g.:
+```ini
+[Corrections]
+Jets.bRegression = true
+Jets.jerPtRes    = calibrations/2017/jer/Fall17_V3_MC_PtResolution_AK4PFchs.txt
+Jets.jerSF       = calibrations/2017/jer/Fall17_V3_MC_SF_AK4PFchs.txt
+```
+
+In the `jetCorrections` method the returned value is always `true`.
+
+5. `MSSMHBBAnalyser::muonSelection()`
+
+The `muonSelection` method selects events according to the minimum number of muons required. It also skims the vector of muons to contain only muons with the required kinematics and matching to muon trigger objects.
+
+Example of the requirements give in the configuration:
+```ini
+[Muons]
+ptMin = 13.
+etaMax = 2.2
+```
+```ini
+[Trigger.Objects]
+Muons.L1  = hltL1Mu12er2p3Jet40er2p3dRMax0p4DoubleJet40er2p3dEtaMax1p6_l1muon
+Muons.L3  = hltL3fL1sMu12Dijet40L1f0L2f8L3Filtered12
+```
+
+6. `MSSMHBBAnalyser::jetSelection()`
+
+The `jetSelection` method selects events according to the minimum number of jets required. It also checks whether the event fulfils the required kinematic selection and matching of the two leading jets to jet trigger objects. It returns `false` if any of the requirements is not fulfilled.
+
+For a selection, in which:
+  * Jet 1: $p_{t} > 60$ GeV; $|\eta| < 2.2$
+  * Jet 2: $p_{t} > 50$ GeV; $|\eta| < 2.2$
+  * Jet 3: $p_{t} > 30$ GeV; $|\eta| < 2.2$
+
+the configuration reads (:warning: notice that the order matters!):
+
+```ini
+[Jets]
+ptMin = 60.
+ptMin = 50.
+ptMin = 30.
+etaMax = 2.2
+etaMax = 2.2
+etaMax = 2.2
+...
+```
+```ini
+[Trigger.Objects]
+Jets.L1   = hltL1Mu12er2p3Jet40er2p3dRMax0p4DoubleJet40er2p3dEtaMax1p6_l1jet
+Jets.Calo = hltDoubleCaloBJets30eta2p3
+Jets.PF   = hltDoublePFBJets40Eta2p3 
+```
+
+7. `MSSMHBBAnalyser::muonJet()`
+
+The `muonJet` method returns true if either of the two leading jets contains at least one of the selected muons.
+
+
+8. `MSSMHBBAnalyser::btagSelection()`
+
+If the leading jets fulfil the required b-tag working point selection and matching of the two leading jets to the corresponding trigger objects, the `btagSelection` method returns `true`. The requirements are controlled in the configuration file. For example, select events with three leading jets passing the `medium` working point of the deepflavour algorithm.
+
+```ini
+[BTag]
+nMin  = 3
+wp = medium
+wp = medium
+wp = medium
+algorithm = deepflavour
+```
+where `wp` if the working point of each required b-tagged jet (:warning: notice that the order matters!)
+
+The values of the WP's must be given in the configuration file:
+```ini
+loose  = 0.0521
+medium = 0.3033
+tight  = 0.7489
+```
+
+Because in the MSSM Hbb analysis, the background modelling is performed in a control region, in which on the b-tagged jets has its b-tagging requirement reversed, one can apply this possibility in the configuration files by setting the flag
+
+```ini
+[Info]
+signalRegion = false
+```
+and defininig reverse b tag WP and the rank of the jet to have the reverse b-tag applied, e.g. reverse b tag of the 3rd leading jet with `loose` WP:
+```ini
+[BTag]
+revWP = loose
+revBJet = 3
+```
+
+
+The matching to trigger object is done given the appropriate trigger object collection, e.g.
+```ini
+[Trigger.Objects]
+BTag.Calo = hltBTagCalo30x8CSVp0p92DoubleWithMatching
+```
+
 ### Configuration file
 
 The structure of the configuration file is defined by the `Analysis/Tools` package. More details can be found in the `Analysis/Tools` [README.md](https://github.com/desy-cms/analysis-tools/blob/develop/README.md#detailed-description).
 
 
-## Workflow
+### Workflow
 
 The workflow of the main macro for DATA is
 
