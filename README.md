@@ -11,6 +11,7 @@
   * [Main macro](#Main-macro)
   * [Configuration file](#Configuration-file)
   * [Workflow](#Workflow)
+  * [Output](#Output)
 * [MssmHbbAnalyser class](#MssmHbbAnalyser-class)
 
 ## Installation
@@ -355,6 +356,10 @@ where as for the Monte Carlo it is
 +----------------------------------------------------------------------------------------------+
 
 ```
+
+### Output
+
+The macro produces a root file containing a directory with jet-related histograms and a TTree containing the dijet mass $m_{bb}$  of the two leading b-tagged jets and the event weights after the full selection.
 
 ## MssmHbbAnalyser class
 
