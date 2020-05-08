@@ -1,6 +1,9 @@
 # `Analysis/MssmHbb`
 
-**Extended framework for the MSSM Hbb all-hadronic and semileptonic analyses in CMS**
+**Extension of the Analysis Framework for the MSSM Hbb all-hadronic and semileptonic analyses in CMS**
+
+See also the code documentation [Doxygen](https://www.desy.de/~walsh/analysis-framework/doxygen/pro) page
+
 
 **This package inherits from the [Analysis/Tools](https://github.com/desy-cms/analysis-tools) package**
 
@@ -13,6 +16,8 @@
   * [Workflow](#Workflow)
   * [Output](#Output)
 * [MssmHbbAnalyser class](#MssmHbbAnalyser-class)
+
+
 
 ## Installation
 
