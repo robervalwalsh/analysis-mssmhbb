@@ -1,4 +1,4 @@
-# `Analysis/MssmHbb`
+# Analysis/MssmHbb
 
 **Extension of the Analysis Framework for the MSSM Hbb all-hadronic and semileptonic analyses in CMS**
 
