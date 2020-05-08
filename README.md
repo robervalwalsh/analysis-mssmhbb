@@ -37,11 +37,15 @@ hash -r
 
 ## Running the analysis
 
-A macro with full analysis workflow can be found in [Analysis/MssmHbb/bin/MssmHbbAnalysis.cc](bin/MssmHbbAnalysis.cc) with the  configuration file in [Analysis/MssmHbb/test/mssmhbb_semilep_2017.cfg](test/mssmhbb_semilep_2017.cfg).
+A macro with the full analysis workflow for both semileptonic and all-hadronic channels can be found in [Analysis/MssmHbb/bin/MssmHbbAnalysis.cc](bin/MssmHbbAnalysis.cc)
 
-This macro perform the standard semileptonic analysis selection:
+### Semileptonic channel
 
-:warning: Unfortunately Github markdown does not render Latex equations :angry:
+The configuration file for the semileptonic analysis with 2017 data is available in the file [Analysis/MssmHbb/test/mssmhbb_semilep_2017.cfg](test/mssmhbb_semilep_2017.cfg).
+
+#### The semileptonic standard selection
+
+:warning: Unfortunately Github markdown does not render Latex equations :rage:
 
 * Trigger
   * HLT: HLT_Mu12_DoublePFJets40MaxDeta1p6_DoubleCaloBTagCSV_p33_v
@@ -63,6 +67,17 @@ This macro perform the standard semileptonic analysis selection:
 * Muon-Jet
   * At least one selected muon must be within one of the two leading jet: $\Delta R(\mu,jet)<0.4$
   
+
+### All-hadronic channel
+
+The configuration file for the semileptonic analysis is available in the file [Analysis/MssmHbb/test/mssmhbb_semilep_2017.cfg](test/mssmhbb_semilep_2017.cfg).
+
+#### The all-hadronic standard selection
+
+**TO DO** 
+
+:warning: Unfortunately Github markdown does not render Latex equations :rage:
+
 
 ### Main macro
 The structure of the macro is as follows:
