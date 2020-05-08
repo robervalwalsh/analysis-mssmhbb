@@ -39,6 +39,27 @@ hash -r
 
 A macro with full analysis workflow can be found in [Analysis/MssmHbb/bin/MssmHbbAnalysis.cc](bin/MssmHbbAnalysis.cc) with the  configuration file in [Analysis/MssmHbb/test/mssmhbb_semilep_2017.cfg](test/mssmhbb_semilep_2017.cfg).
 
+This macro perform the standard semileptonic analysis selection:
+
+* Trigger
+  * HLT: HLT_Mu12_DoublePFJets40MaxDeta1p6_DoubleCaloBTagCSV_p33_v
+  * L1: L1_Mu12er2p3_Jet40er2p3_dR_Max0p4_DoubleJet40er2p3_dEta_Max1p6)
+* Jet
+  * Jet energy corrections applied
+  * b-jet energy regression applied
+  * Jet ID: tight
+  * Jet PU ID: loose
+  * Jet 1: $p_{t} > 60$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP; matched to trigger objects
+  * Jet 2: $p_{t} > 50$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP; matched to trigger objects
+  * Jet 3: $p_{t} > 30$ GeV; $|\eta| < 2.2$; BTag: DeepFlavour Medium WP
+  * $\Delta\eta(jet_1,jet_2) < 1.5$
+  * $\Delta R (jet_{i},jet_{j}) > 1$ ; $i,j=1,2,3$ ; $i\neq j$
+* Muon
+  * Muon ID: tight
+  * Muon: $p_{t} > 13$ GeV; $|\eta| < 2.2$; matched to trigger objects
+* Muon-Jet
+  * At least one selected muon must be within one of the two leading jet: $\Delta R(\mu,jet)<0.4$
+  
 
 ### Main macro
 The structure of the macro is as follows:
@@ -155,6 +176,9 @@ For a selection, in which:
   * Jet 1: $p_{t} > 60$ GeV; $|\eta| < 2.2$
   * Jet 2: $p_{t} > 50$ GeV; $|\eta| < 2.2$
   * Jet 3: $p_{t} > 30$ GeV; $|\eta| < 2.2$
+  * $\Delta\eta(jet_1,jet_2) < 1.5$
+  * $\Delta R (jet_{i},jet_{j}) > 1$ ; $i,j=1,2,3$ ; $i\neq j$
+  
 
 the configuration reads (:warning: notice that the order matters!):
 
@@ -196,6 +220,7 @@ where `wp` if the working point of each required b-tagged jet (:warning: notice 
 
 The values of the WP's must be given in the configuration file:
 ```ini
+[BTag]
 loose  = 0.0521
 medium = 0.3033
 tight  = 0.7489
