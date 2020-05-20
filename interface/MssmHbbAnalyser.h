@@ -47,6 +47,7 @@ namespace analysis {
             virtual bool muonJet(const bool & swap = false);
             void fillMssmHbbTree();
             void mssmHbbTree();
+            void mssmHbbTreeExtended();
             void fillMssmHbbHistograms();
             bool jetCorrections();
             bool triggerSelection();
@@ -60,6 +61,31 @@ namespace analysis {
             std::shared_ptr<TTree> mssmhbb_tree_;
             double mbb_;
             double mbbw_;
+            double ptbb_;
+            double etabb_;
+            double phibb_;
+            double ebb_;
+            double mj1_;
+            double ptj1_;
+            double etaj1_;
+            double phij1_;
+            double ej1_;
+            double mj2_;
+            double ptj2_;
+            double etaj2_;
+            double phij2_;
+            double ej2_;
+            double mj3_;
+            double ptj3_;
+            double etaj3_;
+            double phij3_;
+            double ej3_;
+            double mj4_;
+            double ptj4_;
+            double etaj4_;
+            double phij4_;
+            double ej4_;
+            bool do_ext_tree_;
                
          private:
                

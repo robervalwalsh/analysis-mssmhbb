@@ -40,6 +40,7 @@ MssmHbbAnalyser::MssmHbbAnalyser(int argc, char ** argv) : BaseAnalyser(argc,arg
 //   histograms("jet",config_->nJetsMin());
    do_tree_ = config_->doTree();
    if ( do_tree_ ) this -> mssmHbbTree();
+   do_ext_tree_ = false;
    mbb_ = -1.;
    this->jetHistograms(config_->nJetsMin(),"final_selection");
    h1_["mssmhbb_mbb"] = std::make_shared<TH1F>("mbb","MSSM Hbb mbb", 30000,0,3000);   
@@ -189,6 +190,46 @@ void MssmHbbAnalyser::fillMssmHbbTree()
    
    mbbw_ = weight_;
    
+   if ( do_ext_tree_ )
+   {
+      ptbb_ = c_12.pt();
+      etabb_ = c_12.eta();
+      phibb_ = c_12.phi();
+      ebb_ = c_12.e();
+      
+      ptj1_ = selectedJets_[0]->pt();
+      etaj1_ = selectedJets_[0]->eta();
+      phij1_ = selectedJets_[0]->phi();
+      ej1_ = selectedJets_[0]->e();
+      mj1_ = selectedJets_[0]->m();
+     
+      ptj2_ = selectedJets_[1]->pt();
+      etaj2_ = selectedJets_[1]->eta();
+      phij2_ = selectedJets_[1]->phi();
+      ej2_ = selectedJets_[1]->e();
+      mj2_ = selectedJets_[1]->m();
+     
+      if ( selectedJets_.size() > 2 )
+      {
+         ptj3_ = selectedJets_[2]->pt();
+         etaj3_ = selectedJets_[2]->eta();
+         phij3_ = selectedJets_[2]->phi();
+         ej3_ = selectedJets_[2]->e();
+         mj3_ = selectedJets_[2]->m();
+      }
+      
+      
+      if ( selectedJets_.size() > 3 )
+      {
+         ptj4_ = selectedJets_[3]->pt();
+         etaj4_ = selectedJets_[3]->eta();
+         phij4_ = selectedJets_[3]->phi();
+         ej4_ = selectedJets_[3]->e();
+         mj4_ = selectedJets_[3]->m();
+      }
+   }
+  
+   
    mssmhbb_tree_ -> Fill();
    h1_["cutflow"] -> Fill(cutflow_,weight_);
 
@@ -199,8 +240,44 @@ void MssmHbbAnalyser::mssmHbbTree()
 //   do_tree_ = true;
    this->output()->cd();
    mssmhbb_tree_ = std::make_shared<TTree>("mssmhbb","TTree with mbb and weight for FitModel");
-   mssmhbb_tree_ -> Branch("mbb",&mbb_,"mbb/D");
+   mssmhbb_tree_ -> Branch("mbb",&mbb_,"mbb/D");   
    mssmhbb_tree_ -> Branch("weight",&mbbw_,"weight/D");
+}
+
+void MssmHbbAnalyser::mssmHbbTreeExtended()
+{
+   if ( ! do_tree_ ) return;
+   do_ext_tree_ = true;
+   this->output()->cd();
+   mssmhbb_tree_ -> Branch("ptbb",&ptbb_,"ptbb/D");
+   mssmhbb_tree_ -> Branch("etabb",&etabb_,"etabb/D");
+   mssmhbb_tree_ -> Branch("phibb",&phibb_,"phibb/D");
+   mssmhbb_tree_ -> Branch("ebb",&ebb_,"ebb/D");
+//
+   mssmhbb_tree_ -> Branch("mj1",&mj1_,"mj1/D");
+   mssmhbb_tree_ -> Branch("ptj1",&ptj1_,"ptj1/D");
+   mssmhbb_tree_ -> Branch("etaj1",&etaj1_,"etaj1/D");
+   mssmhbb_tree_ -> Branch("phij1",&phij1_,"phij1/D");
+   mssmhbb_tree_ -> Branch("ej1",&ej1_,"ej1/D");
+//
+   mssmhbb_tree_ -> Branch("mj2",&mj2_,"mj2/D");
+   mssmhbb_tree_ -> Branch("ptj2",&ptj2_,"ptj2/D");
+   mssmhbb_tree_ -> Branch("etaj2",&etaj2_,"etaj2/D");
+   mssmhbb_tree_ -> Branch("phij2",&phij2_,"phij2/D");
+   mssmhbb_tree_ -> Branch("ej2",&ej2_,"ej2/D");
+//
+   mssmhbb_tree_ -> Branch("mj3",&mj3_,"mj3/D");
+   mssmhbb_tree_ -> Branch("ptj3",&ptj3_,"ptj3/D");
+   mssmhbb_tree_ -> Branch("etaj3",&etaj3_,"etaj3/D");
+   mssmhbb_tree_ -> Branch("phij3",&phij3_,"phij3/D");
+   mssmhbb_tree_ -> Branch("ej3",&ej3_,"ej3/D");
+//
+   mssmhbb_tree_ -> Branch("mj4",&mj4_,"mj4/D");
+   mssmhbb_tree_ -> Branch("ptj4",&ptj4_,"ptj4/D");
+   mssmhbb_tree_ -> Branch("etaj4",&etaj4_,"etaj4/D");
+   mssmhbb_tree_ -> Branch("phij4",&phij4_,"phij4/D");
+   mssmhbb_tree_ -> Branch("ej4",&ej4_,"ej4/D");
+   
 }
 
 void MssmHbbAnalyser::fillMssmHbbHistograms()
