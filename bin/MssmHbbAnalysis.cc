@@ -11,8 +11,6 @@ int main(int argc, char ** argv)
 
     MssmHbbAnalyser mssmhbb(argc,argv);
     
-    mssmhbb.mssmHbbTreeExtended();
-
     for ( int i = 0 ; i < mssmhbb.nEvents() ; ++i )
     {
         if ( ! mssmhbb.event(i)             )  continue;    // read event, run selection/json
