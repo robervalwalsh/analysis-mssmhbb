@@ -2,7 +2,7 @@
 
 **Extension of the Analysis Framework for the MSSM Hbb all-hadronic and semileptonic analyses in CMS**
 
-See also the code documentation [Doxygen](https://www.desy.de/~walsh/analysis-framework/doxygen/pro) page
+See also the code documentation [Doxygen](https://www.desy.de/~walsh/docs/analysis-framework/doxygen/latest) page
 
 
 **This package inherits from the [Analysis/Tools](https://github.com/desy-cms/analysis-tools) package**
@@ -30,9 +30,9 @@ cd CMSSW_X_Y_Z/src
 cmsenv
 
 git clone https://github.com/desy-cms/analysis-tools.git Analysis/Tools
-git clone https://github.com/desy-cms/analysis-mssmhbb.git Analysis/MssmHbb
 git clone https://github.com/desy-cms/analysis-calibrations.git Analysis/Tools/data/calibrations
-git clone https://github.com/desy-cms/analysis-ntuples.git Analysis/MssmHbb/test/ntuples
+git clone https://github.com/desy-cms/analysis-ntuples.git Analysis/Tools/data/ntuples
+git clone https://github.com/desy-cms/analysis-mssmhbb.git Analysis/MssmHbb
 
 scram b -j4 USER_CXXFLAGS="-Wno-misleading-indentation"
 hash -r
