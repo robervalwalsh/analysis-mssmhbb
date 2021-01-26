@@ -43,13 +43,10 @@ namespace analysis {
            ~MssmHbbAnalyser();
            
             virtual bool event(const int &i);
-            bool preselection();
             virtual bool muonJet(const bool & swap = false);
             void fillMssmHbbTree();
             void mssmHbbTree();
             void fillMssmHbbHistograms();
-            bool jetCorrections();
-            bool triggerSelection();
             bool jetSelection();
             bool muonSelection();
             bool btagSelection();

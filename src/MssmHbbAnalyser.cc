@@ -64,37 +64,9 @@ bool MssmHbbAnalyser::event(const int & i)
    if ( ! Analyser::event(i) ) return false;
    
 // PILEUP RE-WEIGHT
-   this->actionApplyPileupWeight(); 
+//   this->actionApplyPileupWeight(); 
    
    return true;
-}
-bool MssmHbbAnalyser::preselection()
-{
-// IDENTIFICATIONS
-      if ( ! this->selectionMuonId()         )   return false;
-      if ( ! this->selectionJetId()          )   return false;
-      if ( ! this->selectionJetPileupId()    )   return false;
-      return true;
-      
-}
-bool MssmHbbAnalyser::jetCorrections()
-{
-// CORRECTIONS
-   // b energy regression
-      if ( this->config()->bRegression() )  this->actionApplyBjetRegression();
-   // Jet energy resolution smearing
-      this->actionApplyJER();
-      
-      return true;
-      
-}
-bool MssmHbbAnalyser::triggerSelection()
-{
-// TRIGGER selection
-      if ( ! this->selectionHLT()           )   return false;      
-      if ( ! this->selectionL1 ()           )   return false;  // to be used mainly in case of "OR" of seeds
-      return true;
-      
 }
 bool MssmHbbAnalyser::jetSelection()
 {
