@@ -13,7 +13,7 @@ int main(int argc, char ** argv)
     for ( int i = 0 ; i < mssmhbb.nEvents() ; ++i )
     {
         if ( ! mssmhbb.event(i)             )  continue;    // read event, run selection/json
-        if ( ! mssmhbb.triggerSelection ()  )  continue;    // trigger
+        if ( ! mssmhbb.selectionTrigger ()  )  continue;    // trigger
         if ( ! mssmhbb.preselection()       )  continue;    // preselection
         if ( ! mssmhbb.jetCorrections()     )  continue;    // jet corrections
         if ( ! mssmhbb.muonSelection()      )  continue;    // muon
