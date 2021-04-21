@@ -3,8 +3,8 @@
 
 // -*- C++ -*-
 //
-// Package:    Analysis/MssmHbb
-// Class:      Analysis
+// Package:    Analysis/MssmHbbAnalyser
+// Class:      MssmHbbAnalyser
 // 
 /**\class Analysis MssmHbbAnalyser.cc Analysis/MssmHbb/src/MssmHbbAnalyser.cc
 
